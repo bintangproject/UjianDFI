@@ -3,161 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ujian - Darul Fawaid Ilmiyah</title>
+    <title>CBT - Darul Fawaid Ilmiyah</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #2c3e50; }
-        input, select, button { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { background: #27ae60; color: white; cursor: pointer; font-weight: bold; border: none; }
-        button:hover { background: #219150; }
-        .hidden { display: none; }
-        .soal-card { background: #f9f9f9; padding: 15px; margin-bottom: 15px; border-left: 4px solid #3498db; }
+        body { background-color: #f4f6f9; }
+        .hidden { display: none !important; }
+        .card { border-radius: 10px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .navbar-brand { font-weight: bold; color: #2c3e50 !important; }
     </style>
 </head>
 <body>
 
-<div class="container" id="login-section">
-    <h2>Login Portal Ujian<br><small>Darul Fawaid Ilmiyah</small></h2>
-    <input type="text" id="username" placeholder="Username" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <button onclick="login()">Masuk</button>
-    <p id="msg" style="color:red; text-align:center;"></p>
-</div>
-
-<div class="container hidden" id="murid-section">
-    <h2>Selamat Datang, <span id="nama-murid"></span></h2>
-    <input type="text" id="mapel" placeholder="Masukkan Kode Mapel (contoh: PAI-7)">
-    <button onclick="mulaiUjian()">Mulai Ujian</button>
-    
-    <div id="lembar-ujian" class="hidden">
-        <hr>
-        <div id="tempat-soal"></div>
-        <button onclick="submitUjian()" style="background:#e74c3c;">Kumpulkan Jawaban</button>
+<!-- Navbar Utama -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="#">🎓 Ujian Darul Fawaid Ilmiyah</a>
+        <div id="user-info" class="ms-auto fw-bold text-primary hidden"></div>
+        <button id="btn-logout" class="btn btn-sm btn-outline-danger ms-3 hidden" onclick="location.reload()">Logout</button>
     </div>
-</div>
+</nav>
 
-<div class="container hidden" id="guru-section">
-    <h2>Dashboard Guru/Admin</h2>
-    <p>Selamat datang! Untuk menginput soal atau memberikan nilai manual (Isian/Uraian), silakan buka langsung <b>Google Spreadsheet</b> Anda.</p>
-    <button onclick="location.reload()">Logout</button>
+<div class="container">
+    
+    <!-- BAGIAN 1: LOGIN -->
+    <div id="login-section" class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card p-4">
+                <h4 class="text-center mb-4">Masuk ke Sistem</h4>
+                <div class="mb-3">
+                    <input type="text" id="username" class="form-control" placeholder="Username" required>
+                </div>
+                <div class="mb-3">
+                    <input type="password" id="password" class="form-control" placeholder="Password" required>
+                </div>
+                <button class="btn btn-primary w-100" onclick="login()" id="btn-login">Masuk</button>
+                <div id="login-msg" class="text-danger mt-2 text-center small"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BAGIAN 2: DASHBOARD MURID -->
+    <div id="murid-section" class="hidden">
+        <div class="card p-4 mb-4 text-center">
+            <h5>Mulai Ujian</h5>
+            <div class="d-flex justify-content-center mt-3">
+                <input type="text" id="mapel-murid" class="form-control w-50 me-2" placeholder="Masukkan Kode Mapel (contoh: PAI-7)">
+                <button class="btn btn-success" onclick="mulaiUjian()">Buka Soal</button>
+            </div>
+        </div>
+        <div id="lembar-ujian" class="hidden">
+            <h5 class="mb-3">Lembar Jawaban</h5>
+            <div id="tempat-soal"></div>
+            <button class="btn btn-danger w-100 mt-4 mb-5" onclick="submitUjian()">Kumpulkan Jawaban Selesai</button>
+        </div>
+    </div>
+
+    <!-- BAGIAN 3: DASHBOARD GURU -->
+    <div id="guru-section" class="hidden">
+        <ul class="nav nav-pills mb-4" id="guruTabs">
+            <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab('kelola-soal')">Kelola Soal</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab('penilaian')">Koreksi Jawaban (Uraian)</a></li>
+        </ul>
+
+        <!-- Tab Kelola Soal -->
+        <div id="tab-kelola-soal">
+            <div class="card p-4">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <input type="text" id="mapel-guru" class="form-control" placeholder="Masukkan Kode Mapel untuk memuat/menambah soal...">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary w-100" onclick="loadSoalGuru()">Muat Bank Soal</button>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div id="area-tambah-soal" class="hidden mb-4 p-3 bg-light rounded">
+                    <h5>Tambah Soal Baru</h5>
+                    <div class="row g-2">
+                        <div class="col-md-2"><input type="text" id="ts-id" class="form-control form-control-sm" placeholder="ID (cth: S01)"></div>
+                        <div class="col-md-2">
+                            <select id="ts-jenis" class="form-select form-select-sm" onchange="toggleOpsi()">
+                                <option value="PG">Pilihan Ganda</option>
+                                <option value="Isian">Isian Singkat</option>
+                                <option value="Uraian">Uraian</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8"><input type="text" id="ts-tanya" class="form-control form-control-sm" placeholder="Pertanyaan"></div>
+                        
+                        <!-- Opsi PG -->
+                        <div id="ts-opsi-area" class="row g-2 mt-1">
+                            <div class="col-md-3"><input type="text" id="ts-a" class="form-control form-control-sm" placeholder="Opsi A"></div>
+                            <div class="col-md-3"><input type="text" id="ts-b" class="form-control form-control-sm" placeholder="Opsi B"></div>
+                            <div class="col-md-3"><input type="text" id="ts-c" class="form-control form-control-sm" placeholder="Opsi C"></div>
+                            <div class="col-md-3"><input type="text" id="ts-d" class="form-control form-control-sm" placeholder="Opsi D"></div>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <input type="text" id="ts-kunci" class="form-control form-control-sm" placeholder="Kunci Jawaban (A/B/C/D atau Kata Kunci)">
+                        </div>
+                        <div class="col-md-12 mt-2 text-end">
+                            <button class="btn btn-sm btn-success" onclick="simpanSoalBaru()">Simpan Soal ke Database</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover text-sm">
+                        <thead class="table-dark"><tr><th>ID</th><th>Jenis</th><th>Pertanyaan</th><th>Kunci</th></tr></thead>
+                        <tbody id="tabel-soal-guru"><tr><td colspan="4" class="text-center">Silakan muat mapel terlebih dahulu</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Penilaian -->
+        <div id="tab-penilaian" class="hidden">
+            <div class="card p-4">
+                <div class="d-flex mb-3">
+                    <input type="text" id="mapel-koreksi" class="form-control me-2" placeholder="Masukkan Kode Mapel...">
+                    <button class="btn btn-warning" onclick="loadJawabanKoreksi()">Cari Jawaban Belum Dinilai</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-primary"><tr><th>Siswa</th><th>ID Soal</th><th>Jawaban Siswa</th><th>Nilai (0-100)</th><th>Aksi</th></tr></thead>
+                        <tbody id="tabel-koreksi"><tr><td colspan="5" class="text-center">Belum ada data</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    // === MASUKKAN URL APPS SCRIPT ANDA DI SINI ===
+    // === GANTI DENGAN URL APPS SCRIPT VERSI BARU ANDA ===
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec'; 
 
-    let currentUser = '';
-    let currentMapel = '';
-    let dataSoal = [];
+    let currentUser = ''; let currentMapel = ''; let dataSoal = [];
 
-    async function fetchData(action, payload) {
+    async function apiCall(action, payload) {
         payload.action = action;
-        let response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
-        return await response.json();
+        try {
+            let res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+            return await res.json();
+        } catch (e) {
+            alert("Terjadi kesalahan jaringan/server."); return {status: 'error'};
+        }
     }
 
+    // --- ALUR LOGIN ---
     async function login() {
         let u = document.getElementById('username').value;
         let p = document.getElementById('password').value;
-        document.getElementById('msg').innerText = "Loading...";
+        let btn = document.getElementById('btn-login');
         
-        let res = await fetchData('login', {username: u, password: p});
+        btn.innerHTML = "Memproses..."; btn.disabled = true;
+        let res = await apiCall('login', {username: u, password: p});
+        btn.innerHTML = "Masuk"; btn.disabled = false;
         
         if(res.status === 'success') {
             document.getElementById('login-section').classList.add('hidden');
-            if(res.role === 'Murid') {
-                document.getElementById('murid-section').classList.remove('hidden');
-                document.getElementById('nama-murid').innerText = res.nama;
-                currentUser = u;
-            } else {
-                document.getElementById('guru-section').classList.remove('hidden');
-            }
+            document.getElementById('user-info').classList.remove('hidden');
+            document.getElementById('btn-logout').classList.remove('hidden');
+            document.getElementById('user-info').innerText = `Halo, ${res.nama} (${res.role})`;
+            currentUser = u;
+            
+            if(res.role === 'Murid') document.getElementById('murid-section').classList.remove('hidden');
+            else document.getElementById('guru-section').classList.remove('hidden');
         } else {
-            document.getElementById('msg').innerText = res.message;
+            document.getElementById('login-msg').innerText = res.message;
         }
     }
 
+    // --- ALUR MURID ---
     async function mulaiUjian() {
-        currentMapel = document.getElementById('mapel').value;
-        if(!currentMapel) return alert('Isi mapel dulu!');
+        currentMapel = document.getElementById('mapel-murid').value;
+        if(!currentMapel) return alert('Masukkan mapel!');
         
-        document.getElementById('tempat-soal').innerHTML = "Memuat soal...";
+        let area = document.getElementById('tempat-soal');
+        area.innerHTML = "<div class='text-center'>Mengambil soal dari database...</div>";
         document.getElementById('lembar-ujian').classList.remove('hidden');
 
-        let res = await fetchData('getSoal', {mapel: currentMapel});
+        let res = await apiCall('getSoal', {mapel: currentMapel});
         
         if(res.status === 'success' && res.data.length > 0) {
             dataSoal = res.data;
-            renderSoal();
+            let html = '';
+            dataSoal.forEach((s, i) => {
+                html += `<div class="card mb-3 p-3 border-start border-primary border-4">
+                            <p class="fw-bold">${i+1}. ${s.pertanyaan}</p>`;
+                if(s.jenis === 'PG') {
+                    ['a','b','c','d'].forEach(opt => {
+                        if(s['opsi_'+opt]) {
+                            html += `<div class="form-check">
+                                        <input class="form-check-input" type="radio" name="s_${s.id_soal}" value="${opt}">
+                                        <label class="form-check-label">${s['opsi_'+opt]}</label>
+                                     </div>`;
+                        }
+                    });
+                } else {
+                    html += `<textarea id="s_${s.id_soal}" class="form-control" rows="3" placeholder="Ketik jawaban di sini..."></textarea>`;
+                }
+                html += `</div>`;
+            });
+            area.innerHTML = html;
         } else {
-            document.getElementById('tempat-soal').innerHTML = "Soal tidak ditemukan untuk mapel ini.";
+            area.innerHTML = "<div class='alert alert-warning'>Soal tidak ditemukan.</div>";
         }
-    }
-
-    function renderSoal() {
-        let html = '';
-        dataSoal.forEach((soal, index) => {
-            html += `<div class="soal-card">
-                        <p><b>${index+1}. ${soal.pertanyaan}</b></p>`;
-            
-            if(soal.jenis === 'PG') {
-                ['a','b','c','d'].forEach(opt => {
-                    let nilaiOpsi = soal['opsi_'+opt];
-                    if(nilaiOpsi) {
-                        html += `<label><input type="radio" name="soal_${soal.id_soal}" value="${opt}"> ${nilaiOpsi}</label><br>`;
-                    }
-                });
-            } else if (soal.jenis === 'Isian' || soal.jenis === 'Uraian') {
-                html += `<textarea id="soal_${soal.id_soal}" rows="3" style="width:100%"></textarea>`;
-            }
-            html += `</div>`;
-        });
-        document.getElementById('tempat-soal').innerHTML = html;
     }
 
     async function submitUjian() {
-        let jawabanKirim = [];
-        let lengkap = true;
-
-        dataSoal.forEach(soal => {
-            let jwb = '';
-            if(soal.jenis === 'PG') {
-                let checked = document.querySelector(`input[name="soal_${soal.id_soal}"]:checked`);
-                if(checked) jwb = checked.value;
-            } else {
-                jwb = document.getElementById(`soal_${soal.id_soal}`).value;
-            }
-
-            if(!jwb) lengkap = false;
-
-            jawabanKirim.push({
-                id_soal: soal.id_soal,
-                jenis: soal.jenis,
-                jawaban_murid: jwb
-            });
+        let jawaban = [];
+        dataSoal.forEach(s => {
+            let jwb = (s.jenis === 'PG') ? 
+                (document.querySelector(`input[name="s_${s.id_soal}"]:checked`)?.value || '') : 
+                document.getElementById(`s_${s.id_soal}`).value;
+            jawaban.push({ id_soal: s.id_soal, jenis: s.jenis, jawaban_murid: jwb });
         });
 
-        if(!lengkap) {
-            if(!confirm('Ada soal yang belum dijawab. Yakin ingin mengumpulkan?')) return;
-        }
-
-        document.getElementById('tempat-soal').innerHTML = "Mengirim jawaban, mohon tunggu...";
-        
-        let res = await fetchData('submitJawaban', {
-            username: currentUser,
-            mapel: currentMapel,
-            jawaban: jawabanKirim
-        });
-
+        document.getElementById('tempat-soal').innerHTML = "Menyimpan jawaban...";
+        let res = await apiCall('submitJawaban', { username: currentUser, mapel: currentMapel, jawaban: jawaban });
         if(res.status === 'success') {
-            document.getElementById('tempat-soal').innerHTML = "<h3>Ujian Selesai! Jawaban berhasil disimpan.</h3>";
-            document.querySelector('#lembar-ujian button').classList.add('hidden');
+            document.getElementById('lembar-ujian').innerHTML = `<div class="alert alert-success text-center"><h4>Sukses!</h4>Jawaban Anda telah tersimpan.</div>`;
+        }
+    }
+
+    // --- ALUR GURU ---
+    function switchTab(tabId) {
+        document.querySelectorAll('#guruTabs .nav-link').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('tab-kelola-soal').classList.add('hidden');
+        document.getElementById('tab-penilaian').classList.add('hidden');
+        document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+    }
+
+    async function loadSoalGuru() {
+        let m = document.getElementById('mapel-guru').value;
+        if(!m) return alert('Isi mapel');
+        let tb = document.getElementById('tabel-soal-guru');
+        tb.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
+        
+        let res = await apiCall('getBankSoalGuru', {mapel: m});
+        if(res.status === 'success') {
+            document.getElementById('area-tambah-soal').classList.remove('hidden');
+            let html = '';
+            res.data.forEach(s => {
+                html += `<tr><td>${s.id_soal}</td><td><span class="badge bg-secondary">${s.jenis}</span></td><td>${s.pertanyaan}</td><td>${s.kunci}</td></tr>`;
+            });
+            tb.innerHTML = html || "<tr><td colspan='4'>Belum ada soal</td></tr>";
+        }
+    }
+
+    function toggleOpsi() {
+        let j = document.getElementById('ts-jenis').value;
+        let opsi = document.getElementById('ts-opsi-area');
+        if(j === 'PG') opsi.classList.remove('hidden'); else opsi.classList.add('hidden');
+    }
+
+    async function simpanSoalBaru() {
+        let payload = {
+            id_soal: document.getElementById('ts-id').value,
+            mapel: document.getElementById('mapel-guru').value,
+            jenis: document.getElementById('ts-jenis').value,
+            pertanyaan: document.getElementById('ts-tanya').value,
+            opsi_a: document.getElementById('ts-a').value,
+            opsi_b: document.getElementById('ts-b').value,
+            opsi_c: document.getElementById('ts-c').value,
+            opsi_d: document.getElementById('ts-d').value,
+            kunci: document.getElementById('ts-kunci').value
+        };
+        
+        let res = await apiCall('tambahSoal', {soal: payload});
+        if(res.status === 'success') {
+            alert('Soal berhasil ditambahkan!');
+            document.querySelectorAll('input[id^="ts-"]').forEach(i => i.value = ''); // Reset form
+            loadSoalGuru(); // Refresh tabel
+        }
+    }
+
+    async function loadJawabanKoreksi() {
+        let m = document.getElementById('mapel-koreksi').value;
+        let tb = document.getElementById('tabel-koreksi');
+        tb.innerHTML = "<tr><td colspan='5'>Mencari data...</td></tr>";
+        
+        let res = await apiCall('getJawabanSiswa', {mapel: m});
+        if(res.status === 'success') {
+            let html = '';
+            res.data.forEach(d => {
+                html += `<tr id="row-${d.row_index}">
+                            <td>${d.username}</td><td>${d.id_soal}</td><td>${d.jawaban_murid}</td>
+                            <td><input type="number" id="nilai-${d.row_index}" class="form-control form-control-sm" placeholder="0-100"></td>
+                            <td><button class="btn btn-sm btn-success" onclick="simpanNilai(${d.row_index})">Simpan</button></td>
+                         </tr>`;
+            });
+            tb.innerHTML = html || "<tr><td colspan='5' class="text-center">Semua sudah dinilai / Belum ada jawaban</td></tr>";
+        }
+    }
+
+    async function simpanNilai(rowIndex) {
+        let n = document.getElementById(`nilai-${rowIndex}`).value;
+        if(!n) return alert('Masukkan nilai!');
+        
+        let res = await apiCall('simpanNilaiUraian', {row_index: rowIndex, nilai: n});
+        if(res.status === 'success') {
+            document.getElementById(`row-${rowIndex}`).style.display = 'none'; // Sembunyikan setelah dinilai
         }
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
