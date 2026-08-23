@@ -2,71 +2,158 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - CBT</title>
+    <title>Panel Super Admin - CBT Darul Fawaid</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #f4f6f9; display: flex; margin:0; }
-        #sidebar { width: 250px; background: #1e2b3c; min-height: 100vh; color: #fff; padding-top: 20px;}
-        #sidebar a { color: #cbd5e1; padding: 15px; display: block; text-decoration: none; }
-        #sidebar a:hover, .active { background: #2c3e50; border-left: 4px solid #e74c3c; color: white !important;}
-        #content { flex-grow: 1; padding: 20px; }
-        .panel { display: none; } .panel.active { display: block; }
-        .card-stat { padding: 20px; border-radius: 10px; color: white; }
+        body { background: #f4f6f9; display: flex; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #sidebar { width: 260px; background: #1e2b3c; min-height: 100vh; color: #fff; position: fixed; }
+        #sidebar .header { background: #151e2b; padding: 20px; text-align: center; border-bottom: 1px solid #2c3e50; }
+        #sidebar ul { padding: 10px 0; list-style: none; margin: 0; }
+        #sidebar a { color: #cbd5e1; padding: 12px 20px; display: block; text-decoration: none; font-size: 0.95rem; }
+        #sidebar a:hover, #sidebar .active { background: #2c3e50; color: #fff; border-left: 4px solid #e74c3c; }
+        #sidebar a i { margin-right: 10px; width: 20px; text-align: center; }
+        .menu-title { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; padding: 15px 20px 5px; }
+
+        #content { margin-left: 260px; flex-grow: 1; padding: 30px; width: calc(100% - 260px); }
+        .topbar { background: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .panel { display: none; } .panel.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card-stat { border-radius: 10px; border: none; color: white; padding: 20px; position: relative; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card-stat i { font-size: 3.5rem; position: absolute; right: -5px; bottom: -5px; opacity: 0.2; }
     </style>
 </head>
 <body>
+
 <div id="sidebar">
-    <div class="text-center mb-4"><i class="fas fa-shield-alt fa-3x text-danger mb-2"></i><h5>Super Admin</h5><small id="nama-admin"></small></div>
-    <a href="#" class="active" onclick="gantiTab('dashboard', this)"><i class="fas fa-desktop me-2"></i> Dashboard</a>
-    <a href="#" onclick="gantiTab('ujian', this)"><i class="fas fa-laptop-code me-2"></i> Manajemen Ujian</a>
-    <a href="#" onclick="logout()" class="text-danger mt-5"><i class="fas fa-sign-out-alt me-2"></i> Keluar</a>
+    <div class="header">
+        <i class="fas fa-shield-alt fa-3x text-danger mb-2"></i>
+        <h5 class="mb-0">Super Admin</h5>
+        <small class="text-muted" id="nama-admin">Administrator</small>
+    </div>
+    <ul>
+        <li><a href="#" class="active" onclick="gantiTab('dashboard', this)"><i class="fas fa-desktop"></i> Dashboard</a></li>
+        
+        <div class="menu-title">Master Data</div>
+        <li><a href="#" onclick="gantiTab('guru', this)"><i class="fas fa-chalkboard-teacher"></i> Data Guru</a></li>
+        <li><a href="#" onclick="gantiTab('peserta', this)"><i class="fas fa-user-graduate"></i> Data Peserta</a></li>
+        
+        <div class="menu-title">Ujian & Sistem</div>
+        <li><a href="#" onclick="gantiTab('ujian', this)"><i class="fas fa-laptop-code"></i> Manajemen Ujian</a></li>
+        <li><a href="#" onclick="logout()" class="text-danger mt-4"><i class="fas fa-sign-out-alt"></i> Keluar</a></li>
+    </ul>
 </div>
 
 <div id="content">
+    <div class="topbar">
+        <h4 class="m-0 fw-bold text-secondary" id="page-title">Dashboard Utama</h4>
+        <span class="badge bg-success p-2"><i class="fas fa-server me-1"></i> Sistem Online</span>
+    </div>
+
+    <!-- PANEL 1: DASHBOARD -->
     <div id="panel-dashboard" class="panel active">
-        <h4 class="mb-4">Dashboard Utama</h4>
-        <div class="row g-3">
-            <div class="col-md-4"><div class="card-stat bg-primary"><h6>Total Peserta</h6><h2 id="st-peserta">...</h2></div></div>
-            <div class="col-md-4"><div class="card-stat bg-success"><h6>Total Guru</h6><h2 id="st-guru">...</h2></div></div>
-            <div class="col-md-4"><div class="card-stat bg-warning text-dark"><h6>Jadwal Ujian</h6><h2 id="st-ujian">...</h2></div></div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-3"><div class="card-stat bg-primary"><h6>Total Peserta</h6><h2 id="st-peserta">...</h2><i class="fas fa-users"></i></div></div>
+            <div class="col-md-3"><div class="card-stat bg-success"><h6>Total Guru</h6><h2 id="st-guru">...</h2><i class="fas fa-chalkboard-teacher"></i></div></div>
+            <div class="col-md-3"><div class="card-stat bg-warning text-dark"><h6>Jadwal Ujian</h6><h2 id="st-ujian">...</h2><i class="fas fa-file-signature"></i></div></div>
+            <div class="col-md-3"><div class="card-stat bg-danger"><h6>Status Server</h6><h2>OK</h2><i class="fas fa-server"></i></div></div>
         </div>
         
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card p-3 shadow-sm border-0"><h5>Master Peserta</h5>
-                <table class="table table-sm"><thead><tr><th>UID</th><th>NIS</th><th>Kelas</th></tr></thead><tbody id="tb-peserta"></tbody></table></div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card p-4 shadow-sm border-0">
+                    <h5 class="mb-3 text-primary"><i class="fas fa-history me-2"></i>Log Aktivitas Sistem (Realtime)</h5>
+                    <ul class="list-group list-group-flush" id="list-log">
+                        <li class="list-group-item text-muted">Memuat log...</li>
+                    </ul>
+                </div>
             </div>
-            <div class="col-md-6">
-                <div class="card p-3 shadow-sm border-0"><h5>Master Guru</h5>
-                <table class="table table-sm"><thead><tr><th>UID</th><th>NIP</th><th>Mapel</th></tr></thead><tbody id="tb-guru"></tbody></table></div>
+            <div class="col-md-4">
+                <div class="card p-4 shadow-sm border-0 bg-light">
+                    <h5 class="mb-3 text-secondary"><i class="fas fa-info-circle me-2"></i>Pintasan</h5>
+                    <button class="btn btn-primary w-100 mb-2" onclick="gantiTab('ujian', document.querySelectorAll('#sidebar a')[4])"><i class="fas fa-plus me-1"></i> Buat Ujian Baru</button>
+                    <button class="btn btn-outline-dark w-100" onclick="location.reload()"><i class="fas fa-sync-alt me-1"></i> Refresh Data</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="panel-ujian" class="panel">
-        <div class="d-flex justify-content-between mb-4">
-            <h4>Manajemen Ujian</h4>
-            <button class="btn btn-primary" onclick="buatToken()"><i class="fas fa-plus"></i> Ujian Baru</button>
+    <!-- PANEL 2: GURU -->
+    <div id="panel-guru" class="panel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Data Master Guru</h4>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalGuru"><i class="fas fa-user-plus"></i> Tambah Guru</button>
         </div>
-        
-        <div id="form-ujian" class="card p-3 mb-4" style="display:none;">
+        <div class="card p-3 shadow-sm border-0">
+            <table class="table table-hover"><thead class="table-light"><tr><th>UID</th><th>NIP</th><th>Mata Pelajaran</th></tr></thead><tbody id="tb-guru"></tbody></table>
+        </div>
+    </div>
+
+    <!-- PANEL 3: PESERTA -->
+    <div id="panel-peserta" class="panel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Data Master Peserta</h4>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPeserta"><i class="fas fa-user-plus"></i> Tambah Siswa</button>
+        </div>
+        <div class="card p-3 shadow-sm border-0">
+            <table class="table table-hover"><thead class="table-light"><tr><th>UID</th><th>NIS</th><th>Kelas</th></tr></thead><tbody id="tb-peserta"></tbody></table>
+        </div>
+    </div>
+
+    <!-- PANEL 4: UJIAN -->
+    <div id="panel-ujian" class="panel">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>Manajemen Jadwal Ujian</h4>
+            <button class="btn btn-primary" onclick="buatToken()"><i class="fas fa-plus"></i> Buat Ujian Baru</button>
+        </div>
+        <div id="form-ujian" class="card p-3 mb-4 shadow-sm border-0" style="display:none;">
+            <h5 class="mb-3">Form Pengaturan Ujian</h5>
             <div class="row g-2">
-                <div class="col-3"><input type="text" id="u-mapel" class="form-control" placeholder="Mapel (cth: Fiqih)"></div>
-                <div class="col-3"><input type="text" id="u-kelas" class="form-control" placeholder="Kelas (cth: VII-A)"></div>
-                <div class="col-2"><input type="date" id="u-tgl" class="form-control"></div>
-                <div class="col-2"><input type="number" id="u-durasi" class="form-control" placeholder="Menit" value="90"></div>
-                <div class="col-2"><input type="text" id="u-token" class="form-control" readonly></div>
-                <div class="col-12 text-end"><button class="btn btn-success" onclick="simpanUjian()">Simpan Jadwal</button></div>
+                <div class="col-md-3"><input type="text" id="u-mapel" class="form-control" placeholder="Mapel (cth: Fiqih)"></div>
+                <div class="col-md-3"><input type="text" id="u-kelas" class="form-control" placeholder="Kelas (cth: VII-A)"></div>
+                <div class="col-md-2"><input type="date" id="u-tgl" class="form-control"></div>
+                <div class="col-md-2"><input type="number" id="u-durasi" class="form-control" placeholder="Menit" value="90"></div>
+                <div class="col-md-2"><input type="text" id="u-token" class="form-control fw-bold text-center" readonly></div>
+                <div class="col-12 text-end mt-2"><button class="btn btn-success" onclick="simpanUjian()">Simpan Jadwal</button></div>
             </div>
         </div>
-        
         <div class="card p-3 shadow-sm border-0">
-            <table class="table"><thead><tr><th>ID</th><th>Mapel</th><th>Kelas</th><th>Durasi</th><th>Token</th><th>Status</th></tr></thead><tbody id="tb-ujian"></tbody></table>
+            <table class="table table-hover"><thead class="table-light"><tr><th>ID</th><th>Mapel</th><th>Kelas</th><th>Durasi</th><th>Token</th><th>Status</th></tr></thead><tbody id="tb-ujian"></tbody></table>
         </div>
     </div>
 </div>
 
+<!-- Modal Tambah Guru -->
+<div class="modal fade" id="modalGuru" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title">Tambah Guru Baru</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body row g-3">
+      <div class="col-6"><input type="text" id="g-uid" class="form-control" placeholder="User ID (cth: G02)"></div>
+      <div class="col-6"><input type="text" id="g-nip" class="form-control" placeholder="NIP"></div>
+      <div class="col-12"><input type="text" id="g-nama" class="form-control" placeholder="Nama Lengkap & Gelar"></div>
+      <div class="col-6"><input type="text" id="g-user" class="form-control" placeholder="Username Login"></div>
+      <div class="col-6"><input type="password" id="g-pass" class="form-control" placeholder="Password"></div>
+      <div class="col-12"><input type="text" id="g-mapel" class="form-control" placeholder="Mata Pelajaran yang Diampu"></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-success w-100" onclick="simpanGuru()">Simpan Data Guru</button></div></div></div>
+</div>
+
+<!-- Modal Tambah Peserta -->
+<div class="modal fade" id="modalPeserta" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title">Tambah Peserta Baru</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+  <div class="modal-body row g-3">
+      <div class="col-6"><input type="text" id="p-uid" class="form-control" placeholder="User ID (cth: S02)"></div>
+      <div class="col-6"><input type="text" id="p-nis" class="form-control" placeholder="NIS Siswa"></div>
+      <div class="col-12"><input type="text" id="p-nama" class="form-control" placeholder="Nama Lengkap Siswa"></div>
+      <div class="col-6"><input type="text" id="p-user" class="form-control" placeholder="Username Login"></div>
+      <div class="col-6"><input type="password" id="p-pass" class="form-control" placeholder="Password"></div>
+      <div class="col-12"><input type="text" id="p-kelas" class="form-control" placeholder="Kelas (cth: VII-A)"></div>
+  </div>
+  <div class="modal-footer"><button class="btn btn-success w-100" onclick="simpanPeserta()">Simpan Data Peserta</button></div></div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec';
 
@@ -84,6 +171,8 @@
     function gantiTab(id, el) {
         document.querySelectorAll('#sidebar a').forEach(a => a.classList.remove('active')); el.classList.add('active');
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-'+id).classList.add('active');
+        let titles = {'dashboard': 'Dashboard Utama', 'guru': 'Data Master Guru', 'peserta': 'Data Master Peserta', 'ujian': 'Manajemen Jadwal Ujian'};
+        document.getElementById('page-title').innerText = titles[id];
     }
 
     async function loadDataAdmin() {
@@ -95,7 +184,10 @@
             
             document.getElementById('tb-peserta').innerHTML = res.data.peserta.map(p => `<tr><td>${p.uid}</td><td>${p.nis}</td><td>${p.kelas}</td></tr>`).join('');
             document.getElementById('tb-guru').innerHTML = res.data.guru.map(g => `<tr><td>${g.uid}</td><td>${g.nip}</td><td>${g.mapel}</td></tr>`).join('');
-            document.getElementById('tb-ujian').innerHTML = res.data.ujian.map(u => `<tr><td>${u.id}</td><td>${u.mapel}</td><td>${u.kelas}</td><td>${u.durasi}</td><td><b>${u.token}</b></td><td>${u.status}</td></tr>`).join('');
+            document.getElementById('tb-ujian').innerHTML = res.data.ujian.map(u => `<tr><td>${u.id}</td><td>${u.mapel}</td><td>${u.kelas}</td><td>${u.durasi} Min</td><td><b>${u.token}</b></td><td><span class="badge bg-success">${u.status}</span></td></tr>`).join('');
+            
+            // Render Log
+            document.getElementById('list-log').innerHTML = res.data.log.map(l => `<li class="list-group-item d-flex justify-content-between align-items-center small"><span><i class="fas fa-history text-secondary me-2"></i><b>[${l.uid}]</b> ${l.akt}</span><span class="text-muted">${l.waktu}</span></li>`).join('');
         }
     }
 
@@ -105,17 +197,23 @@
     }
 
     async function simpanUjian() {
-        let p = { 
-            mapel: document.getElementById('u-mapel').value, 
-            kelas: document.getElementById('u-kelas').value, 
-            tanggal: document.getElementById('u-tgl').value, 
-            durasi: document.getElementById('u-durasi').value, 
-            token: document.getElementById('u-token').value 
-        };
+        let p = { mapel: document.getElementById('u-mapel').value, kelas: document.getElementById('u-kelas').value, tanggal: document.getElementById('u-tgl').value, durasi: document.getElementById('u-durasi').value, token: document.getElementById('u-token').value };
         let res = await fetchAPI('tambahUjianBaru', p);
-        if(res.status === 'success') { alert('Berhasil!'); location.reload(); }
+        if(res.status === 'success') { alert('Jadwal berhasil dibuat!'); location.reload(); }
     }
-    
+
+    async function simpanGuru() {
+        let p = { guru_id: document.getElementById('g-uid').value, uid: document.getElementById('g-uid').value, nip: document.getElementById('g-nip').value, nama: document.getElementById('g-nama').value, username: document.getElementById('g-user').value, password: document.getElementById('g-pass').value, mapel: document.getElementById('g-mapel').value };
+        let res = await fetchAPI('tambahGuru', p);
+        if(res.status === 'success') { alert('Guru berhasil ditambahkan!'); location.reload(); }
+    }
+
+    async function simpanPeserta() {
+        let p = { peserta_id: document.getElementById('p-uid').value, uid: document.getElementById('p-uid').value, nis: document.getElementById('p-nis').value, nama: document.getElementById('p-nama').value, username: document.getElementById('p-user').value, password: document.getElementById('p-pass').value, kelas: document.getElementById('p-kelas').value };
+        let res = await fetchAPI('tambahPeserta', p);
+        if(res.status === 'success') { alert('Peserta berhasil ditambahkan!'); location.reload(); }
+    }
+
     function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 </script>
 </body></html>
