@@ -30,12 +30,17 @@
         e.preventDefault();
         let btn = document.getElementById('btnLogin');
         let msg = document.getElementById('msg');
+        
+        // Ambil nilai dengan cara yang aman
+        let valUser = document.getElementById('username').value;
+        let valPass = document.getElementById('password').value;
+        
         btn.innerHTML = 'Memproses...'; btn.disabled = true; msg.innerHTML = '';
 
         try {
             let res = await fetch(API_URL, {
                 method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({action: 'login', username: username.value, password: password.value})
+                body: JSON.stringify({action: 'login', username: valUser, password: valPass})
             }).then(r => r.json());
 
             if (res.status === 'success') {
