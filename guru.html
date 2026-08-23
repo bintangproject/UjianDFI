@@ -1,283 +1,85 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Guru - CBT Darul Fawaid</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Guru - CBT</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; overflow-x: hidden; }
-        
-        /* Sidebar Styling */
-        #sidebar { min-width: 250px; max-width: 250px; min-height: 100vh; background: #2c3e50; color: white; transition: all 0.3s; position: fixed; }
-        #sidebar .sidebar-header { padding: 20px; background: #1a252f; text-align: center; }
-        #sidebar ul.components { padding: 20px 0; }
-        #sidebar ul li a { padding: 15px 20px; display: block; color: #ecf0f1; text-decoration: none; font-weight: 500; transition: 0.2s;}
-        #sidebar ul li a:hover, #sidebar ul li.active a { background: #34495e; border-left: 4px solid #3498db; }
-        #sidebar ul li a i { margin-right: 10px; width: 20px; text-align: center; }
-        
-        /* Content Styling */
-        #content { margin-left: 250px; padding: 20px; width: calc(100% - 250px); transition: all 0.3s; }
-        .top-navbar { background: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; }
-        .card-stat:hover { transform: translateY(-5px); }
-        .icon-stat { font-size: 2.5rem; opacity: 0.2; position: absolute; right: 20px; bottom: 20px; }
-        
-        .section-panel { display: none; }
-        .active-panel { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { background: #f8f9fa; display: flex; margin:0; }
+        #sidebar { width: 250px; background: #2c3e50; min-height: 100vh; color: #fff; padding-top: 20px;}
+        #sidebar a { color: #ecf0f1; padding: 15px; display: block; text-decoration: none; }
+        #sidebar a:hover, .active { background: #34495e; border-left: 4px solid #3498db; }
+        #content { flex-grow: 1; padding: 20px; }
+        .panel { display: none; } .panel.active { display: block; }
+        .card-stat { padding: 20px; border-radius: 10px; color: white; }
     </style>
 </head>
 <body>
+<div id="sidebar">
+    <div class="text-center mb-4"><i class="fas fa-book-reader fa-3x text-info mb-2"></i><h5>Panel Guru</h5><small id="nama-guru"></small></div>
+    <a href="#" class="active" onclick="gantiTab('dashboard', this)"><i class="fas fa-home me-2"></i> Dashboard</a>
+    <a href="#" onclick="gantiTab('soal', this)"><i class="fas fa-database me-2"></i> Bank Soal</a>
+    <a href="#" onclick="gantiTab('koreksi', this)"><i class="fas fa-check-double me-2"></i> Koreksi Manual</a>
+    <a href="#" onclick="logout()" class="text-danger mt-5"><i class="fas fa-sign-out-alt me-2"></i> Keluar</a>
+</div>
 
-<div class="d-flex">
-    <!-- SIDEBAR -->
-    <nav id="sidebar">
-        <div class="sidebar-header">
-            <i class="fas fa-book-reader fa-3x mb-2 text-info"></i>
-            <h5>Panel Guru</h5>
-            <small class="text-muted" id="nama-guru">Loading...</small>
+<div id="content">
+    <div id="panel-dashboard" class="panel active">
+        <h4 class="mb-4">Dashboard Guru</h4>
+        <div class="row g-3">
+            <div class="col-md-4"><div class="card-stat bg-primary"><h6>Total Soal Dibuat</h6><h2 id="st-soal">...</h2></div></div>
+            <div class="col-md-4"><div class="card-stat bg-warning text-dark"><h6>Ujian Aktif Sekolah</h6><h2 id="st-ujian">...</h2></div></div>
+            <div class="col-md-4"><div class="card-stat bg-danger"><h6>Belum Dikoreksi</h6><h2 id="st-koreksi">...</h2></div></div>
         </div>
-        <ul class="list-unstyled components">
-            <li class="active" onclick="switchPanel('dashboard', this)"><a href="#"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li onclick="switchPanel('banksoal', this)"><a href="#"><i class="fas fa-database"></i> Bank Soal</a></li>
-            <li onclick="switchPanel('penilaian', this)"><a href="#"><i class="fas fa-check-double"></i> Penilaian Uraian</a></li>
-            <li onclick="logout()"><a href="#" class="text-danger"><i class="fas fa-sign-out-alt"></i> Keluar</a></li>
-        </ul>
-    </nav>
+    </div>
 
-    <!-- CONTENT AREA -->
-    <div id="content">
-        <!-- TOPBAR -->
-        <div class="top-navbar">
-            <h5 class="m-0 text-secondary" id="page-title">Dashboard</h5>
-            <div><span class="badge bg-primary">Tahun Ajaran 2026/2027</span></div>
+    <div id="panel-soal" class="panel">
+        <h4>Data Bank Soal Anda</h4>
+        <div class="card p-3 shadow-sm border-0 mt-3">
+            <table class="table"><thead><tr><th>ID</th><th>Mapel</th><th>Tipe</th><th>Pertanyaan</th><th>Bobot</th></tr></thead><tbody id="tb-soal"></tbody></table>
         </div>
+    </div>
 
-        <!-- PANEL: DASHBOARD -->
-        <div id="panel-dashboard" class="section-panel active-panel">
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="card card-stat bg-primary text-white p-4 position-relative">
-                        <h6>Total Soal Dibuat</h6><h2 class="mb-0">145</h2>
-                        <i class="fas fa-list icon-stat"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-stat bg-warning text-white p-4 position-relative">
-                        <h6>Ujian Aktif</h6><h2 class="mb-0">2</h2>
-                        <i class="fas fa-laptop-code icon-stat"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-stat bg-danger text-white p-4 position-relative">
-                        <h6>Belum Dikoreksi</h6><h2 class="mb-0">34</h2>
-                        <i class="fas fa-edit icon-stat"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-stat bg-success text-white p-4 position-relative">
-                        <h6>Rata-rata Nilai</h6><h2 class="mb-0">82.5</h2>
-                        <i class="fas fa-chart-bar icon-stat"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card mt-4 p-4 shadow-sm border-0">
-                <h5>Selamat Datang di CBT Engine!</h5>
-                <p class="text-muted">Gunakan menu di sebelah kiri untuk mengelola bank soal mata pelajaran Anda, atau memberikan skor manual untuk ujian Isian Singkat dan Uraian yang telah dikerjakan oleh peserta ujian.</p>
-            </div>
+    <div id="panel-koreksi" class="panel">
+        <h4>Koreksi Jawaban Uraian</h4>
+        <div class="alert alert-info mt-3">Fitur ini menampilkan jawaban peserta bertipe "Uraian/Isian" yang belum memiliki nilai. Nilai Pilihan Ganda sudah dihitung otomatis oleh sistem.</div>
+        <div class="card p-3 shadow-sm border-0">
+            <table class="table table-striped"><thead><tr><th>User ID Siswa</th><th>ID Soal</th><th>Jawaban Siswa</th></tr></thead><tbody id="tb-koreksi"></tbody></table>
+            <!-- Input skor disimpan via Google Sheets native untuk keringanan akses -->
         </div>
-
-        <!-- PANEL: BANK SOAL -->
-        <div id="panel-banksoal" class="section-panel">
-            <div class="card shadow-sm border-0 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="m-0 text-primary"><i class="fas fa-database me-2"></i>Kelola Bank Soal</h5>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalSoal"><i class="fas fa-plus me-1"></i> Buat Soal Baru</button>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-hover border">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Mapel</th>
-                                <th>Tipe</th>
-                                <th>Pertanyaan</th>
-                                <th>Bobot</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Contoh Data Dummy -->
-                            <tr>
-                                <td>S-001</td><td>Fiqih VII</td><td><span class="badge bg-info text-dark">PG</span></td>
-                                <td>Apa rukun Islam yang ketiga?</td><td>10</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>S-002</td><td>Fiqih VII</td><td><span class="badge bg-warning text-dark">Uraian</span></td>
-                                <td>Sebutkan syarat sah shalat!</td><td>20</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- PANEL: PENILAIAN -->
-        <div id="panel-penilaian" class="section-panel">
-            <div class="card shadow-sm border-0 p-4">
-                <h5 class="text-primary mb-4"><i class="fas fa-check-double me-2"></i>Koreksi Manual (Isian & Uraian)</h5>
-                
-                <div class="alert alert-info border-0 border-start border-info border-4">
-                    <i class="fas fa-info-circle me-2"></i> Nilai Pilihan Ganda sudah dihitung otomatis oleh sistem. Di sini Anda hanya perlu menilai jawaban Isian Singkat dan Uraian.
-                </div>
-
-                <table class="table table-bordered table-striped mt-3">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Siswa</th>
-                            <th>ID Soal</th>
-                            <th>Jawaban Siswa</th>
-                            <th width="150">Skor Manual</th>
-                            <th width="100">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Contoh Data Dummy -->
-                        <tr id="row-jwb-1">
-                            <td>Muhammad Fulan (VII-A)</td>
-                            <td>S-002 <small class="text-muted">(Uraian)</small></td>
-                            <td>Syarat sah shalat ada beberapa, yaitu suci dari hadas, menutup aurat, dan menghadap kiblat.</td>
-                            <td><input type="number" class="form-control" placeholder="0-100" id="skor-1"></td>
-                            <td><button class="btn btn-primary" onclick="simpanSkor(1)"><i class="fas fa-save"></i></button></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="text-end mt-3">
-                    <button class="btn btn-success"><i class="fas fa-check-circle me-1"></i> Finalize Semua Nilai</button>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
-<!-- Modal Tambah Soal -->
-<div class="modal fade" id="modalSoal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Tambah Soal Baru</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-          <div class="row g-3">
-              <div class="col-md-6">
-                  <label>Mata Pelajaran / Kelas</label>
-                  <select class="form-select"><option>Fiqih - Kelas VII</option><option>Aqidah - Kelas VII</option></select>
-              </div>
-              <div class="col-md-3">
-                  <label>Tipe Soal</label>
-                  <select class="form-select" id="form-tipe-soal" onchange="toggleFormOpsi()">
-                      <option value="PG">Pilihan Ganda</option>
-                      <option value="Isian">Isian Singkat</option>
-                      <option value="Uraian">Uraian</option>
-                  </select>
-              </div>
-              <div class="col-md-3">
-                  <label>Bobot Skor</label>
-                  <input type="number" class="form-control" value="10">
-              </div>
-              <div class="col-12">
-                  <label>Pertanyaan</label>
-                  <textarea class="form-control" rows="3" placeholder="Tuliskan pertanyaan di sini..."></textarea>
-              </div>
-              
-              <!-- Khusus Pilihan Ganda -->
-              <div class="col-12" id="area-opsi-pg">
-                  <label class="fw-bold mt-2">Opsi Jawaban (Khusus PG)</label>
-                  <div class="input-group mb-2"><span class="input-group-text bg-light">A</span><input type="text" class="form-control"></div>
-                  <div class="input-group mb-2"><span class="input-group-text bg-light">B</span><input type="text" class="form-control"></div>
-                  <div class="input-group mb-2"><span class="input-group-text bg-light">C</span><input type="text" class="form-control"></div>
-                  <div class="input-group mb-2"><span class="input-group-text bg-light">D</span><input type="text" class="form-control"></div>
-                  
-                  <label class="mt-2">Kunci Jawaban</label>
-                  <select class="form-select w-50">
-                      <option value="A">Opsi A</option><option value="B">Opsi B</option>
-                      <option value="C">Opsi C</option><option value="D">Opsi D</option>
-                  </select>
-              </div>
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-primary" onclick="alert('Soal berhasil disimpan ke Database (Simulasi)')">Simpan Soal</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Cek Sesi (Keamanan)
+    const API_URL = 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec';
+    async function fetchAPI(action, payload = {}) {
+        payload.action = action; payload.user_id = localStorage.getItem('cbt_user_id');
+        return fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) }).then(r=>r.json());
+    }
+
     window.onload = () => {
-        let role = localStorage.getItem('cbt_role');
-        let nama = localStorage.getItem('cbt_nama');
-        if(role !== 'Guru') {
-            alert('Akses Ditolak! Silakan login sebagai Guru.');
-            window.location.href = 'index.html';
-        }
-        document.getElementById('nama-guru').innerText = nama;
+        if(localStorage.getItem('cbt_role') !== 'Guru') window.location.href = 'index.html';
+        document.getElementById('nama-guru').innerText = localStorage.getItem('cbt_nama');
+        loadDataGuru();
     };
 
-    // Navigasi SPA (Single Page Application)
-    function switchPanel(panelId, element) {
-        // Hapus class active dari semua menu
-        document.querySelectorAll('#sidebar ul li').forEach(li => li.classList.remove('active'));
-        element.classList.add('active');
-
-        // Sembunyikan semua panel
-        document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active-panel'));
-        
-        // Tampilkan panel yang dipilih
-        document.getElementById('panel-' + panelId).classList.add('active-panel');
-
-        // Ubah Judul Topbar
-        let titles = {'dashboard': 'Dashboard', 'banksoal': 'Kelola Bank Soal', 'penilaian': 'Penilaian Uraian'};
-        document.getElementById('page-title').innerText = titles[panelId];
+    function gantiTab(id, el) {
+        document.querySelectorAll('#sidebar a').forEach(a => a.classList.remove('active')); el.classList.add('active');
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-'+id).classList.add('active');
     }
 
-    // Toggle Form Opsi PG vs Uraian
-    function toggleFormOpsi() {
-        let tipe = document.getElementById('form-tipe-soal').value;
-        if(tipe === 'PG') document.getElementById('area-opsi-pg').style.display = 'block';
-        else document.getElementById('area-opsi-pg').style.display = 'none';
+    async function loadDataGuru() {
+        let res = await fetchAPI('getGuruData');
+        if(res.status === 'success') {
+            document.getElementById('st-soal').innerText = res.data.stats.s;
+            document.getElementById('st-ujian').innerText = res.data.stats.u;
+            document.getElementById('st-koreksi').innerText = res.data.stats.n;
+            
+            document.getElementById('tb-soal').innerHTML = res.data.soal.map(s => `<tr><td>${s.id}</td><td>${s.mapel}</td><td><span class="badge bg-secondary">${s.tipe}</span></td><td>${s.tanya}</td><td>${s.bobot}</td></tr>`).join('') || '<tr><td colspan="5">Belum ada soal</td></tr>';
+            document.getElementById('tb-koreksi').innerHTML = res.data.nilai.map(n => `<tr><td>${n.u_id}</td><td>${n.s_id}</td><td>${n.jwb}</td></tr>`).join('') || '<tr><td colspan="3">Semua jawaban telah dinilai</td></tr>';
+        }
     }
-
-    // Simulasi Koreksi Manual
-    function simpanSkor(idRow) {
-        let skor = document.getElementById('skor-' + idRow).value;
-        if(skor === '') return alert('Masukkan nilai skor terlebih dahulu!');
-        
-        document.getElementById('row-jwb-' + idRow).innerHTML = `<td colspan="5" class="text-center text-success"><i class="fas fa-check-circle"></i> Jawaban berhasil dinilai (${skor}) dan disimpan ke Spreadsheet.</td>`;
-    }
-
-    function logout() {
-        localStorage.clear();
-        window.location.href = 'index.html';
-    }
+    function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 </script>
-</body>
-</html>
+</body></html>
