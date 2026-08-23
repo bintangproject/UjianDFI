@@ -105,7 +105,13 @@
     }
 
     async function simpanUjian() {
-        let p = { mapel: u-mapel.value, kelas: u-kelas.value, tanggal: u-tgl.value, durasi: u-durasi.value, token: u-token.value };
+        let p = { 
+            mapel: document.getElementById('u-mapel').value, 
+            kelas: document.getElementById('u-kelas').value, 
+            tanggal: document.getElementById('u-tgl').value, 
+            durasi: document.getElementById('u-durasi').value, 
+            token: document.getElementById('u-token').value 
+        };
         let res = await fetchAPI('tambahUjianBaru', p);
         if(res.status === 'success') { alert('Berhasil!'); location.reload(); }
     }
