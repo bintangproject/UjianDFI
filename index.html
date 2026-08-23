@@ -3,229 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CBT Pro - Darul Fawaid Ilmiyah</title>
+    <title>Login - CBT Darul Fawaid Ilmiyah</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .hidden { display: none !important; }
-        
-        /* Navigasi Grid Soal */
-        .grid-soal { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .btn-nomor { border-radius: 8px; font-weight: bold; width: 100%; height: 40px; }
-        .bg-abu { background: #e0e0e0; color: #333; border: 1px solid #ccc; }
-        .bg-hijau { background: #2ecc71; color: white; border: none; }
-        .bg-kuning { background: #f1c40f; color: white; border: none; }
-        .active-soal { border: 3px solid #3498db; transform: scale(1.1); }
-
-        .exam-header { background: #2c3e50; color: white; padding: 15px; position: sticky; top: 0; z-index: 100;}
-        .timer-box { font-size: 1.5rem; font-weight: bold; background: #e74c3c; padding: 5px 15px; border-radius: 5px;}
+        body { background: #2c3e50; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; }
+        .logo-area { text-align: center; margin-bottom: 30px; }
+        .logo-area i { font-size: 50px; color: #2980b9; }
     </style>
 </head>
 <body>
 
-<!-- HEADER UJIAN -->
-<div id="exam-arena" class="hidden">
-    <div class="exam-header d-flex justify-content-between align-items-center">
-        <div>
-            <h5 class="m-0">Darul Fawaid Ilmiyah</h5>
-            <small>Peserta: <span id="nama-peserta"></span> | Mapel: <span id="mapel-label"></span></small>
-        </div>
-        <div>
-            <span class="timer-box" id="timer-display">00:00:00</span>
-            <button class="btn btn-sm btn-outline-light ms-2" onclick="toggleFullScreen()"><i class="fas fa-expand"></i></button>
-        </div>
+<div class="login-card">
+    <div class="logo-area">
+        <i class="fas fa-graduation-cap"></i>
+        <h4 class="mt-2 text-dark">Portal Ujian CBT</h4>
+        <p class="text-muted small">Darul Fawaid Ilmiyah</p>
     </div>
-
-    <div class="container-fluid mt-3">
-        <div class="row">
-            <!-- AREA SOAL UTAMA -->
-            <div class="col-md-8 mb-3">
-                <div class="card p-4 shadow-sm" style="min-height: 400px;">
-                    <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-                        <h5 class="text-primary">Soal No. <span id="soal-aktif-no">1</span></h5>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="ragu-toggle" onchange="tandaiRagu()">
-                            <label class="form-check-label text-warning fw-bold">Ragu-ragu</label>
-                        </div>
-                    </div>
-                    
-                    <div id="pertanyaan-teks" class="fs-5 mb-4">Memuat soal...</div>
-                    <div id="opsi-area"></div>
-
-                    <div class="d-flex justify-content-between mt-auto pt-4">
-                        <button class="btn btn-secondary" onclick="navigasi(-1)">Pilihan Sebelumnya</button>
-                        <button class="btn btn-primary" onclick="navigasi(1)">Soal Selanjutnya</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SIDEBAR NAVIGASI -->
-            <div class="col-md-4">
-                <div class="card p-3 shadow-sm">
-                    <h6 class="text-center mb-3 border-bottom pb-2">Navigasi Soal</h6>
-                    <div class="grid-soal" id="grid-navigasi">
-                        <!-- Grid nomor di-generate JS -->
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between text-muted small mb-3">
-                        <span><i class="fas fa-square text-success"></i> Dijawab</span>
-                        <span><i class="fas fa-square text-warning"></i> Ragu</span>
-                        <span><i class="fas fa-square" style="color:#e0e0e0;"></i> Kosong</span>
-                    </div>
-                    <button class="btn btn-danger w-100" onclick="submitAkhir()">KIRIM JAWABAN (SELESAI)</button>
-                </div>
+    
+    <form id="formLogin" onsubmit="prosesLogin(event)">
+        <div class="mb-3">
+            <label class="form-label text-secondary small fw-bold">USERNAME</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <input type="text" id="username" class="form-control" placeholder="Masukkan Username" required>
             </div>
         </div>
-    </div>
+        <div class="mb-4">
+            <label class="form-label text-secondary small fw-bold">PASSWORD</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" id="password" class="form-control" placeholder="Masukkan Password" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 fw-bold" id="btnLogin">MASUK <i class="fas fa-sign-in-alt ms-2"></i></button>
+    </form>
+    <div id="msg" class="text-danger text-center mt-3 small"></div>
 </div>
 
 <script>
-    // CORE EXAM ENGINE (FRONTEND)
-    let soalData = [];
-    let jawabanPeserta = {}; // Simpanan lokal {id_soal: {jwb: 'A', ragu: false}}
-    let currentIndex = 0;
-    let timerInterval;
+    // URL Web App dari Google Apps Script
+    const API_URL = 'URL_WEB_APP_ANDA_DISINI';
 
-    // Dummy Start Ujian (Nantinya dipanggil setelah sukses Login & klik Mulai)
-    function mulaiSimulasiUjian() {
-        document.getElementById('exam-arena').classList.remove('hidden');
-        toggleFullScreen();
+    async function prosesLogin(e) {
+        e.preventDefault();
+        let u = document.getElementById('username').value;
+        let p = document.getElementById('password').value;
+        let btn = document.getElementById('btnLogin');
+        let msg = document.getElementById('msg');
         
-        // Simulasi Data Soal dari API
-        soalData = [
-            {id: 'S01', tipe: 'PG', tanya: 'Siapakah presiden pertama Indonesia?', a: 'Soeharto', b: 'Soekarno', c: 'Habibie', d: 'Gus Dur'},
-            {id: 'S02', tipe: 'PG', tanya: 'Apa ibukota Jawa Timur?', a: 'Surabaya', b: 'Malang', c: 'Kediri', d: 'Madiun'},
-            {id: 'S03', tipe: 'Isian', tanya: 'Tahun berapa Indonesia merdeka?'}
-        ];
-        
-        setupNavigasi();
-        loadSoal(0);
-        mulaiTimer(90); // 90 Menit
-    }
+        btn.innerHTML = 'Memproses... <i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+        msg.innerHTML = '';
 
-    function setupNavigasi() {
-        let grid = document.getElementById('grid-navigasi');
-        grid.innerHTML = '';
-        soalData.forEach((s, idx) => {
-            jawabanPeserta[s.id] = {jwb: '', ragu: false}; // Inisialisasi
-            let btn = document.createElement('button');
-            btn.className = 'btn-nomor bg-abu';
-            btn.id = 'btn-nav-' + idx;
-            btn.innerText = idx + 1;
-            btn.onclick = () => loadSoal(idx);
-            grid.appendChild(btn);
-        });
-    }
+        try {
+            // Simulasi API Fetch (Ganti dengan fetch ke API_URL saat Apps Script sudah siap)
+            // let response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({action: 'login', username: u, password: p}) });
+            // let res = await response.json();
+            
+            // SIMULASI LOGIN UNTUK TESTING UI:
+            let res = {status: 'error', message: 'Username tidak ditemukan'};
+            if(u === 'guru' && p === '123') res = {status: 'success', role: 'Guru', user_id: 'G01', nama: 'Ustadz Ahmad', token: 'token123'};
+            if(u === 'admin' && p === '123') res = {status: 'success', role: 'Admin', user_id: 'A01', nama: 'Panitia', token: 'token456'};
+            if(u === 'siswa' && p === '123') res = {status: 'success', role: 'Peserta', user_id: 'S01', nama: 'Fulan', token: 'token789'};
 
-    function loadSoal(index) {
-        if(index < 0 || index >= soalData.length) return;
-        
-        // Hapus border aktif dari semua
-        document.querySelectorAll('.btn-nomor').forEach(b => b.classList.remove('active-soal'));
-        document.getElementById('btn-nav-' + index).classList.add('active-soal');
-        
-        currentIndex = index;
-        let soal = soalData[index];
-        document.getElementById('soal-aktif-no').innerText = index + 1;
-        document.getElementById('pertanyaan-teks').innerText = soal.tanya;
-        
-        // Atur Toggle Ragu-ragu
-        document.getElementById('ragu-toggle').checked = jawabanPeserta[soal.id].ragu;
+            if (res.status === 'success') {
+                // Simpan sesi ke Local Storage
+                localStorage.setItem('cbt_user_id', res.user_id);
+                localStorage.setItem('cbt_role', res.role);
+                localStorage.setItem('cbt_nama', res.nama);
+                localStorage.setItem('cbt_token', res.token);
 
-        // Render Opsi
-        let area = document.getElementById('opsi-area');
-        area.innerHTML = '';
-        if(soal.tipe === 'PG') {
-            ['a','b','c','d'].forEach(opt => {
-                let isChecked = jawabanPeserta[soal.id].jwb === opt ? 'checked' : '';
-                area.innerHTML += `
-                    <div class="form-check mb-2 p-2 border rounded" style="background:#fff;">
-                        <input class="form-check-input ms-1" type="radio" name="opsi" value="${opt}" id="opt-${opt}" onchange="simpanJawabanLokal('${opt}')" ${isChecked}>
-                        <label class="form-check-label w-100 ms-2" for="opt-${opt}">${soal[opt]}</label>
-                    </div>`;
-            });
-        } else {
-            let val = jawabanPeserta[soal.id].jwb;
-            area.innerHTML = `<textarea class="form-control" rows="5" placeholder="Ketik jawaban Anda..." onkeyup="simpanJawabanLokal(this.value)">${val}</textarea>`;
-        }
-    }
-
-    function simpanJawabanLokal(val) {
-        let id = soalData[currentIndex].id;
-        jawabanPeserta[id].jwb = val;
-        updateWarnaTombol(currentIndex);
-        
-        // AUTO SAVE KE LOCAL STORAGE AGAR TAHAN REFRESH
-        localStorage.setItem('jawaban_sementara', JSON.stringify(jawabanPeserta));
-        
-        // Di sini bisa ditambahkan debounce Fetch API untuk push ke Google Sheets (TBD)
-    }
-
-    function tandaiRagu() {
-        let id = soalData[currentIndex].id;
-        jawabanPeserta[id].ragu = document.getElementById('ragu-toggle').checked;
-        updateWarnaTombol(currentIndex);
-    }
-
-    function updateWarnaTombol(index) {
-        let id = soalData[index].id;
-        let btn = document.getElementById('btn-nav-' + index);
-        let jwb = jawabanPeserta[id];
-        
-        btn.className = 'btn-nomor ' + (index === currentIndex ? 'active-soal ' : '');
-        if(jwb.ragu) btn.classList.add('bg-kuning');
-        else if(jwb.jwb.trim() !== '') btn.classList.add('bg-hijau');
-        else btn.classList.add('bg-abu');
-    }
-
-    function navigasi(arah) { loadSoal(currentIndex + arah); }
-
-    // TIMER ANTI REFRESH
-    function mulaiTimer(menit) {
-        let endTime = localStorage.getItem('ujian_endtime');
-        if(!endTime) {
-            endTime = new Date().getTime() + (menit * 60 * 1000);
-            localStorage.setItem('ujian_endtime', endTime);
-        }
-
-        timerInterval = setInterval(() => {
-            let now = new Date().getTime();
-            let distance = endTime - now;
-
-            if (distance < 0) {
-                clearInterval(timerInterval);
-                document.getElementById('timer-display').innerText = "WAKTU HABIS";
-                alert("Waktu habis! Jawaban otomatis dikumpulkan.");
-                submitAkhir();
+                // Redirect sesuai Role
+                if (res.role === 'Admin') window.location.href = 'admin.html';
+                else if (res.role === 'Guru') window.location.href = 'guru.html';
+                else window.location.href = 'ujian.html'; // File dari Tahap 3
             } else {
-                let h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                let s = Math.floor((distance % (1000 * 60)) / 1000);
-                document.getElementById('timer-display').innerText = 
-                    (h < 10 ? "0"+h : h) + ":" + (m < 10 ? "0"+m : m) + ":" + (s < 10 ? "0"+s : s);
+                msg.innerHTML = res.message;
+                btn.innerHTML = 'MASUK <i class="fas fa-sign-in-alt ms-2"></i>';
+                btn.disabled = false;
             }
-        }, 1000);
-    }
-
-    function toggleFullScreen() {
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-        else if (document.exitFullscreen) document.exitFullscreen();
-    }
-
-    function submitAkhir() {
-        if(confirm('Yakin ingin menyelesaikan ujian? Anda tidak bisa mengubah jawaban lagi.')) {
-            clearInterval(timerInterval);
-            localStorage.removeItem('ujian_endtime');
-            localStorage.removeItem('jawaban_sementara');
-            alert('Jawaban berhasil disubmit ke server!');
-            // Proses Fetch ke API doSubmit(jawabanPeserta)
-            location.reload();
+        } catch (error) {
+            msg.innerHTML = "Gagal terhubung ke server.";
+            btn.innerHTML = 'MASUK';
+            btn.disabled = false;
         }
     }
-
-    // UNTUK TESTING LANGSUNG
-    setTimeout(mulaiSimulasiUjian, 500); 
 </script>
 </body>
 </html>
