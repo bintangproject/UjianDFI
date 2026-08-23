@@ -1,329 +1,115 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - Master CBT</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - CBT</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; overflow-x: hidden; }
-        
-        /* Sidebar Styling (Konsisten dengan Guru) */
-        #sidebar { min-width: 250px; max-width: 250px; min-height: 100vh; background: #1e2b3c; color: white; transition: all 0.3s; position: fixed; }
-        #sidebar .sidebar-header { padding: 20px; background: #151e2b; text-align: center; border-bottom: 1px solid #2c3e50; }
-        #sidebar ul.components { padding: 10px 0; }
-        #sidebar ul li a { padding: 12px 20px; display: block; color: #cbd5e1; text-decoration: none; font-weight: 500; font-size: 0.95rem; }
-        #sidebar ul li a:hover, #sidebar ul li.active a { background: #2c3e50; color: #fff; border-left: 4px solid #e74c3c; }
-        #sidebar ul li a i { margin-right: 10px; width: 20px; text-align: center; }
-        
-        .menu-title { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; padding: 10px 20px 5px; margin-top: 10px; }
-
-        /* Content Styling */
-        #content { margin-left: 250px; padding: 20px; width: calc(100% - 250px); }
-        .topbar { background: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .section-panel { display: none; }
-        .active-panel { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .card-stat { border-radius: 10px; border: none; color: white; padding: 20px; position: relative; overflow: hidden; }
-        .card-stat i { font-size: 4rem; position: absolute; right: -10px; bottom: -10px; opacity: 0.2; }
+        body { background: #f4f6f9; display: flex; margin:0; }
+        #sidebar { width: 250px; background: #1e2b3c; min-height: 100vh; color: #fff; padding-top: 20px;}
+        #sidebar a { color: #cbd5e1; padding: 15px; display: block; text-decoration: none; }
+        #sidebar a:hover, .active { background: #2c3e50; border-left: 4px solid #e74c3c; color: white !important;}
+        #content { flex-grow: 1; padding: 20px; }
+        .panel { display: none; } .panel.active { display: block; }
+        .card-stat { padding: 20px; border-radius: 10px; color: white; }
     </style>
 </head>
 <body>
+<div id="sidebar">
+    <div class="text-center mb-4"><i class="fas fa-shield-alt fa-3x text-danger mb-2"></i><h5>Super Admin</h5><small id="nama-admin"></small></div>
+    <a href="#" class="active" onclick="gantiTab('dashboard', this)"><i class="fas fa-desktop me-2"></i> Dashboard</a>
+    <a href="#" onclick="gantiTab('ujian', this)"><i class="fas fa-laptop-code me-2"></i> Manajemen Ujian</a>
+    <a href="#" onclick="logout()" class="text-danger mt-5"><i class="fas fa-sign-out-alt me-2"></i> Keluar</a>
+</div>
 
-<div class="d-flex">
-    <!-- SIDEBAR ADMIN -->
-    <nav id="sidebar">
-        <div class="sidebar-header">
-            <i class="fas fa-shield-alt fa-3x mb-2 text-danger"></i>
-            <h5 class="mb-0">Super Admin</h5>
-            <small class="text-muted" id="nama-admin">Loading...</small>
+<div id="content">
+    <div id="panel-dashboard" class="panel active">
+        <h4 class="mb-4">Dashboard Utama</h4>
+        <div class="row g-3">
+            <div class="col-md-4"><div class="card-stat bg-primary"><h6>Total Peserta</h6><h2 id="st-peserta">...</h2></div></div>
+            <div class="col-md-4"><div class="card-stat bg-success"><h6>Total Guru</h6><h2 id="st-guru">...</h2></div></div>
+            <div class="col-md-4"><div class="card-stat bg-warning text-dark"><h6>Jadwal Ujian</h6><h2 id="st-ujian">...</h2></div></div>
         </div>
-        <ul class="list-unstyled components">
-            <li class="active" onclick="switchPanel('dashboard', this)"><a href="#"><i class="fas fa-desktop"></i> Dashboard</a></li>
-            
-            <div class="menu-title">Master Data</div>
-            <li onclick="switchPanel('guru', this)"><a href="#"><i class="fas fa-chalkboard-teacher"></i> Data Guru</a></li>
-            <li onclick="switchPanel('peserta', this)"><a href="#"><i class="fas fa-user-graduate"></i> Data Peserta</a></li>
-            
-            <div class="menu-title">Ujian & Nilai</div>
-            <li onclick="switchPanel('ujian', this)"><a href="#"><i class="fas fa-laptop-code"></i> Manajemen Ujian</a></li>
-            <li onclick="switchPanel('monitoring', this)"><a href="#"><i class="fas fa-satellite-dish"></i> Monitoring Online</a></li>
-            <li onclick="switchPanel('rekap', this)"><a href="#"><i class="fas fa-chart-line"></i> Rekap Nilai</a></li>
-            
-            <div class="menu-title">Sistem</div>
-            <li onclick="switchPanel('pengaturan', this)"><a href="#"><i class="fas fa-cogs"></i> Pengaturan</a></li>
-            <li onclick="logout()"><a href="#" class="text-danger"><i class="fas fa-sign-out-alt"></i> Keluar</a></li>
-        </ul>
-    </nav>
-
-    <!-- CONTENT AREA -->
-    <div id="content">
-        <!-- TOPBAR -->
-        <div class="topbar">
-            <h5 class="m-0 text-dark fw-bold" id="page-title">Dashboard Utama</h5>
-            <div>
-                <span class="badge bg-danger p-2"><i class="fas fa-server"></i> Server Online</span>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm border-0"><h5>Master Peserta</h5>
+                <table class="table table-sm"><thead><tr><th>UID</th><th>NIS</th><th>Kelas</th></tr></thead><tbody id="tb-peserta"></tbody></table></div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3 shadow-sm border-0"><h5>Master Guru</h5>
+                <table class="table table-sm"><thead><tr><th>UID</th><th>NIP</th><th>Mapel</th></tr></thead><tbody id="tb-guru"></tbody></table></div>
             </div>
         </div>
+    </div>
 
-        <!-- PANEL 1: DASHBOARD -->
-        <div id="panel-dashboard" class="section-panel active-panel">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <div class="card-stat bg-primary">
-                        <h6>Total Peserta</h6><h2 class="mb-0">342</h2><i class="fas fa-users"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-stat bg-success">
-                        <h6>Total Guru</h6><h2 class="mb-0">28</h2><i class="fas fa-chalkboard-teacher"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-stat bg-warning text-dark">
-                        <h6>Ujian Aktif</h6><h2 class="mb-0">3</h2><i class="fas fa-file-signature"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card-stat bg-danger">
-                        <h6>Sedang Online</h6><h2 class="mb-0">120</h2><i class="fas fa-satellite-dish"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card mt-4 p-4 border-0 shadow-sm">
-                <h5>Log Aktivitas Sistem (Realtime)</h5>
-                <ul class="list-group list-group-flush mt-3 text-sm">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-sign-in-alt text-success me-2"></i> Fulan (VII-A) baru saja login.</span> <small class="text-muted">Barusan</small>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-check-circle text-primary me-2"></i> Ustadz Ahmad menyelesaikan koreksi Fiqih.</span> <small class="text-muted">5 Menit lalu</small>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-flag-checkered text-warning me-2"></i> Kelas VIII-B memulai Ujian Matematika.</span> <small class="text-muted">12 Menit lalu</small>
-                    </li>
-                </ul>
-            </div>
+    <div id="panel-ujian" class="panel">
+        <div class="d-flex justify-content-between mb-4">
+            <h4>Manajemen Ujian</h4>
+            <button class="btn btn-primary" onclick="buatToken()"><i class="fas fa-plus"></i> Ujian Baru</button>
         </div>
-
-        <!-- PANEL 2: MANAJEMEN UJIAN -->
-        <div id="panel-ujian" class="section-panel">
-            <div class="card shadow-sm border-0 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="m-0 text-primary"><i class="fas fa-laptop-code me-2"></i>Manajemen Jadwal Ujian</h5>
-                    <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuatUjian"><i class="fas fa-plus me-1"></i> Buat Ujian Baru</button>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle border">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Kode Ujian</th>
-                                <th>Mata Pelajaran</th>
-                                <th>Kelas</th>
-                                <th>Durasi</th>
-                                <th>Token</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-ujian">
-                            <!-- Contoh Data -->
-                            <tr>
-                                <td>UJ-001</td><td>Fiqih</td><td>VII-A, VII-B</td><td>90 Menit</td>
-                                <td><span class="badge bg-dark fs-6">XY789</span></td>
-                                <td><span class="badge bg-success">Aktif</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-sm btn-outline-danger"><i class="fas fa-power-off"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- PANEL 3: MASTER DATA (PESERTA) -->
-        <div id="panel-peserta" class="section-panel">
-            <div class="card shadow-sm border-0 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="m-0 text-primary"><i class="fas fa-users me-2"></i>Data Master Peserta</h5>
-                    <div>
-                        <button class="btn btn-success"><i class="fas fa-file-excel me-1"></i> Import Excel</button>
-                        <button class="btn btn-primary"><i class="fas fa-user-plus me-1"></i> Tambah Siswa</button>
-                    </div>
-                </div>
-                <table class="table table-striped border">
-                    <thead class="table-dark">
-                        <tr><th>User ID</th><th>NIS</th><th>Nama Lengkap</th><th>Kelas</th><th>Password Default</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>S01</td><td>2026001</td><td>Muhammad Fulan</td><td>VII-A</td><td>123456</td></tr>
-                        <tr><td>S02</td><td>2026002</td><td>Aisyah</td><td>VII-B</td><td>123456</td></tr>
-                    </tbody>
-                </table>
+        
+        <div id="form-ujian" class="card p-3 mb-4" style="display:none;">
+            <div class="row g-2">
+                <div class="col-3"><input type="text" id="u-mapel" class="form-control" placeholder="Mapel (cth: Fiqih)"></div>
+                <div class="col-3"><input type="text" id="u-kelas" class="form-control" placeholder="Kelas (cth: VII-A)"></div>
+                <div class="col-2"><input type="date" id="u-tgl" class="form-control"></div>
+                <div class="col-2"><input type="number" id="u-durasi" class="form-control" placeholder="Menit" value="90"></div>
+                <div class="col-2"><input type="text" id="u-token" class="form-control" readonly></div>
+                <div class="col-12 text-end"><button class="btn btn-success" onclick="simpanUjian()">Simpan Jadwal</button></div>
             </div>
         </div>
         
-        <!-- Panel lainnya (Guru, Monitoring, Rekap, Pengaturan) dapat diisi format serupa tabel/grafik -->
-        <div id="panel-guru" class="section-panel"><div class="card p-4"><h5>Master Data Guru</h5><p>Menampilkan tabel master guru...</p></div></div>
-        <div id="panel-monitoring" class="section-panel"><div class="card p-4"><h5>Monitoring Siswa Ujian</h5><p>Menampilkan siswa yang sedang mengerjakan dan sisa waktu...</p></div></div>
-        <div id="panel-rekap" class="section-panel"><div class="card p-4"><h5>Rekap & Export Nilai</h5><p>Fitur export nilai otomatis ke PDF / Excel...</p></div></div>
-        <div id="panel-pengaturan" class="section-panel"><div class="card p-4"><h5>Pengaturan Sistem</h5><p>Logo instansi, reset database, konfigurasi ujian...</p></div></div>
-
+        <div class="card p-3 shadow-sm border-0">
+            <table class="table"><thead><tr><th>ID</th><th>Mapel</th><th>Kelas</th><th>Durasi</th><th>Token</th><th>Status</th></tr></thead><tbody id="tb-ujian"></tbody></table>
+        </div>
     </div>
 </div>
 
-<!-- Modal Buat Ujian Baru -->
-<div class="modal fade" id="modalBuatUjian" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title"><i class="fas fa-plus-circle me-2"></i>Setup Ujian Baru</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body row g-3">
-          <div class="col-md-6">
-              <label class="form-label fw-bold small">Mata Pelajaran</label>
-              <select class="form-select" id="uj-mapel">
-                  <option>Fiqih</option><option>Aqidah</option><option>Matematika</option>
-              </select>
-          </div>
-          <div class="col-md-6">
-              <label class="form-label fw-bold small">Pilih Kelas</label>
-              <input type="text" class="form-control" id="uj-kelas" placeholder="Cth: VII-A, VII-B">
-          </div>
-          <div class="col-md-4">
-              <label class="form-label fw-bold small">Tanggal Mulai</label>
-              <input type="date" class="form-control" id="uj-tanggal">
-          </div>
-          <div class="col-md-4">
-              <label class="form-label fw-bold small">Durasi (Menit)</label>
-              <input type="number" class="form-control" id="uj-durasi" value="90">
-          </div>
-          <div class="col-md-4">
-              <label class="form-label fw-bold small">Token Akses</label>
-              <div class="input-group">
-                  <input type="text" class="form-control fw-bold text-center text-danger" id="uj-token" value="ABC12" readonly>
-                  <button class="btn btn-outline-secondary" onclick="generateToken()"><i class="fas fa-sync-alt"></i></button>
-              </div>
-          </div>
-      </div>
-      <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-primary fw-bold" onclick="simpanUjian()">Publish Ujian <i class="fas fa-paper-plane ms-1"></i></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // =========================================================
-    // KONFIGURASI API (Siap Pakai untuk Google Apps Script)
-    // =========================================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec'; 
+    const API_URL = 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec';
 
-    // Fungsi fetchAPI ini sudah dibuat tahan banting. 
-    // Anda HANYA PERLU mengganti logika if(!API_URL...) jika backend sudah siap.
     async function fetchAPI(action, payload = {}) {
-        payload.action = action;
-        payload.session_token = localStorage.getItem('cbt_token'); // Keamanan
-        payload.user_id = localStorage.getItem('cbt_user_id');
-
-        // Jika API_URL belum diisi, kita gunakan simulasi lokal agar web tetap bisa dites UI-nya.
-        if(API_URL === 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec') {
-            console.log("[Simulasi Payload ke Sheet]: ", payload);
-            return new Promise(resolve => setTimeout(() => resolve({status: 'success'}), 500));
-        }
-
-        try {
-            let response = await fetch(API_URL, {
-                method: 'POST',
-                // Google Apps Script butuh 'text/plain' untuk CORS jika diakses via POST biasa dari client browser
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                body: JSON.stringify(payload)
-            });
-            return await response.json();
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            alert("Gagal terhubung ke Database Spreadsheet!");
-            return {status: 'error', message: error.message};
-        }
+        payload.action = action; payload.user_id = localStorage.getItem('cbt_user_id');
+        return fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) }).then(r=>r.json());
     }
 
-    // =========================================================
-    // LOGIKA FRONTEND ADMIN
-    // =========================================================
     window.onload = () => {
-        let role = localStorage.getItem('cbt_role');
-        let nama = localStorage.getItem('cbt_nama');
-        
-        // Proteksi Halaman
-        if(role !== 'Admin') {
-            alert('Akses Ilegal! Anda bukan Admin.');
-            window.location.href = 'index.html';
-        }
-        document.getElementById('nama-admin').innerText = nama || 'Administrator';
+        if(localStorage.getItem('cbt_role') !== 'Admin') window.location.href = 'index.html';
+        document.getElementById('nama-admin').innerText = localStorage.getItem('cbt_nama');
+        loadDataAdmin();
     };
 
-    function switchPanel(panelId, element) {
-        document.querySelectorAll('#sidebar ul li').forEach(li => li.classList.remove('active'));
-        element.classList.add('active');
-        document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active-panel'));
-        document.getElementById('panel-' + panelId).classList.add('active-panel');
-
-        let titles = {
-            'dashboard': 'Dashboard Utama', 'guru': 'Data Master Guru', 
-            'peserta': 'Data Master Peserta', 'ujian': 'Manajemen Ujian',
-            'monitoring': 'Monitoring Ujian Berjalan', 'rekap': 'Rekap & Export Nilai',
-            'pengaturan': 'Pengaturan Sistem'
-        };
-        document.getElementById('page-title').innerText = titles[panelId];
+    function gantiTab(id, el) {
+        document.querySelectorAll('#sidebar a').forEach(a => a.classList.remove('active')); el.classList.add('active');
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-'+id).classList.add('active');
     }
 
-    function generateToken() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let token = '';
-        for (let i = 0; i < 5; i++) token += chars.charAt(Math.floor(Math.random() * chars.length));
-        document.getElementById('uj-token').value = token;
-    }
-
-    // Fungsi ini akan dieksekusi saat tombol Publish Ujian ditekan
-    async function simpanUjian() {
-        let payload = {
-            mapel: document.getElementById('uj-mapel').value,
-            kelas: document.getElementById('uj-kelas').value,
-            tanggal: document.getElementById('uj-tanggal').value,
-            durasi: document.getElementById('uj-durasi').value,
-            token: document.getElementById('uj-token').value
-        };
-
-        if(!payload.kelas || !payload.tanggal) return alert("Lengkapi data jadwal ujian!");
-
-        // Eksekusi ke Apps Script
-        let res = await fetchAPI('tambahUjianBaru', payload);
-        
+    async function loadDataAdmin() {
+        let res = await fetchAPI('getAdminData');
         if(res.status === 'success') {
-            alert("Jadwal Ujian berhasil dibuat dan Token aktif!");
+            document.getElementById('st-peserta').innerText = res.data.stats.p;
+            document.getElementById('st-guru').innerText = res.data.stats.g;
+            document.getElementById('st-ujian').innerText = res.data.stats.u;
             
-            // Tutup modal via Bootstrap API
-            let modalEl = document.getElementById('modalBuatUjian');
-            let modalObj = bootstrap.Modal.getInstance(modalEl);
-            modalObj.hide();
-
-            // (Opsional) Disini Anda bisa memanggil fetchAPI('getSemuaUjian') untuk me-refresh tabel
+            document.getElementById('tb-peserta').innerHTML = res.data.peserta.map(p => `<tr><td>${p.uid}</td><td>${p.nis}</td><td>${p.kelas}</td></tr>`).join('');
+            document.getElementById('tb-guru').innerHTML = res.data.guru.map(g => `<tr><td>${g.uid}</td><td>${g.nip}</td><td>${g.mapel}</td></tr>`).join('');
+            document.getElementById('tb-ujian').innerHTML = res.data.ujian.map(u => `<tr><td>${u.id}</td><td>${u.mapel}</td><td>${u.kelas}</td><td>${u.durasi}</td><td><b>${u.token}</b></td><td>${u.status}</td></tr>`).join('');
         }
     }
 
-    function logout() {
-        localStorage.clear();
-        window.location.href = 'index.html';
+    function buatToken() {
+        document.getElementById('form-ujian').style.display = 'block';
+        document.getElementById('u-token').value = Math.random().toString(36).substr(2, 5).toUpperCase();
     }
+
+    async function simpanUjian() {
+        let p = { mapel: u-mapel.value, kelas: u-kelas.value, tanggal: u-tgl.value, durasi: u-durasi.value, token: u-token.value };
+        let res = await fetchAPI('tambahUjianBaru', p);
+        if(res.status === 'success') { alert('Berhasil!'); location.reload(); }
+    }
+    
+    function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 </script>
-</body>
-</html>
+</body></html>
