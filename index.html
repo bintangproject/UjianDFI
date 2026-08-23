@@ -1,95 +1,57 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - CBT Darul Fawaid Ilmiyah</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background: #2c3e50; height: 100vh; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; }
-        .logo-area { text-align: center; margin-bottom: 30px; }
-        .logo-area i { font-size: 50px; color: #2980b9; }
     </style>
 </head>
 <body>
-
-<div class="login-card">
-    <div class="logo-area">
-        <i class="fas fa-graduation-cap"></i>
-        <h4 class="mt-2 text-dark">Portal Ujian CBT</h4>
-        <p class="text-muted small">Darul Fawaid Ilmiyah</p>
-    </div>
-    
-    <form id="formLogin" onsubmit="prosesLogin(event)">
-        <div class="mb-3">
-            <label class="form-label text-secondary small fw-bold">USERNAME</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                <input type="text" id="username" class="form-control" placeholder="Masukkan Username" required>
-            </div>
-        </div>
-        <div class="mb-4">
-            <label class="form-label text-secondary small fw-bold">PASSWORD</label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                <input type="password" id="password" class="form-control" placeholder="Masukkan Password" required>
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary w-100 fw-bold" id="btnLogin">MASUK <i class="fas fa-sign-in-alt ms-2"></i></button>
+<div class="login-card text-center">
+    <i class="fas fa-graduation-cap fa-4x text-primary mb-3"></i>
+    <h4 class="text-dark">Portal Ujian CBT</h4>
+    <p class="text-muted small mb-4">Darul Fawaid Ilmiyah</p>
+    <form onsubmit="prosesLogin(event)">
+        <input type="text" id="username" class="form-control mb-3" placeholder="Username" required>
+        <input type="password" id="password" class="form-control mb-4" placeholder="Password" required>
+        <button type="submit" class="btn btn-primary w-100 fw-bold" id="btnLogin">MASUK</button>
     </form>
-    <div id="msg" class="text-danger text-center mt-3 small"></div>
+    <div id="msg" class="text-danger mt-3 small"></div>
 </div>
 
 <script>
-    // URL Web App dari Google Apps Script
     const API_URL = 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec';
 
     async function prosesLogin(e) {
         e.preventDefault();
-        let u = document.getElementById('username').value;
-        let p = document.getElementById('password').value;
         let btn = document.getElementById('btnLogin');
         let msg = document.getElementById('msg');
-        
-        btn.innerHTML = 'Memproses... <i class="fas fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-        msg.innerHTML = '';
+        btn.innerHTML = 'Memproses...'; btn.disabled = true; msg.innerHTML = '';
 
         try {
-            // Simulasi API Fetch (Ganti dengan fetch ke API_URL saat Apps Script sudah siap)
-            // let response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({action: 'login', username: u, password: p}) });
-            // let res = await response.json();
-            
-            // SIMULASI LOGIN UNTUK TESTING UI:
-            let res = {status: 'error', message: 'Username tidak ditemukan'};
-            if(u === 'guru' && p === '123') res = {status: 'success', role: 'Guru', user_id: 'G01', nama: 'Ustadz Ahmad', token: 'token123'};
-            if(u === 'admin' && p === '123') res = {status: 'success', role: 'Admin', user_id: 'A01', nama: 'Panitia', token: 'token456'};
-            if(u === 'siswa' && p === '123') res = {status: 'success', role: 'Peserta', user_id: 'S01', nama: 'Fulan', token: 'token789'};
+            let res = await fetch(API_URL, {
+                method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({action: 'login', username: username.value, password: password.value})
+            }).then(r => r.json());
 
             if (res.status === 'success') {
-                // Simpan sesi ke Local Storage
                 localStorage.setItem('cbt_user_id', res.user_id);
                 localStorage.setItem('cbt_role', res.role);
                 localStorage.setItem('cbt_nama', res.nama);
+                localStorage.setItem('cbt_kelas', res.kelas);
+                localStorage.setItem('cbt_mapel', res.mapel);
                 localStorage.setItem('cbt_token', res.token);
-
-                // Redirect sesuai Role
+                
                 if (res.role === 'Admin') window.location.href = 'admin.html';
                 else if (res.role === 'Guru') window.location.href = 'guru.html';
-                else window.location.href = 'ujian.html'; // File dari Tahap 3
-            } else {
-                msg.innerHTML = res.message;
-                btn.innerHTML = 'MASUK <i class="fas fa-sign-in-alt ms-2"></i>';
-                btn.disabled = false;
-            }
-        } catch (error) {
-            msg.innerHTML = "Gagal terhubung ke server.";
-            btn.innerHTML = 'MASUK';
-            btn.disabled = false;
-        }
+                else window.location.href = 'ujian.html';
+            } else { msg.innerHTML = res.msg; }
+        } catch (err) { msg.innerHTML = "Gagal terhubung ke server."; }
+        btn.innerHTML = 'MASUK'; btn.disabled = false;
     }
 </script>
-</body>
-</html>
+</body></html>
