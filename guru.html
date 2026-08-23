@@ -10,7 +10,7 @@
         #sidebar { width: 250px; background: #2c3e50; min-height: 100vh; color: #fff; padding-top: 20px;}
         #sidebar a { color: #ecf0f1; padding: 15px; display: block; text-decoration: none; }
         #sidebar a:hover, .active { background: #34495e; border-left: 4px solid #3498db; }
-        #content { flex-grow: 1; padding: 20px; }
+        #content { flex-grow: 1; padding: 20px; width: calc(100% - 250px); }
         .panel { display: none; } .panel.active { display: block; }
         .card-stat { padding: 20px; border-radius: 10px; color: white; }
     </style>
@@ -35,32 +35,82 @@
     </div>
 
     <div id="panel-soal" class="panel">
-        <h4>Data Bank Soal Anda</h4>
-        <div class="card p-3 shadow-sm border-0 mt-3">
-            <table class="table"><thead><tr><th>ID</th><th>Mapel</th><th>Tipe</th><th>Pertanyaan</th><th>Bobot</th></tr></thead><tbody id="tb-soal"></tbody></table>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Data Bank Soal Anda</h4>
+            <button class="btn btn-primary fw-bold" onclick="bukaModalSoal()"><i class="fas fa-plus"></i> Tambah Soal</button>
+        </div>
+        <div class="card p-3 shadow-sm border-0 mt-3 table-responsive">
+            <table class="table">
+                <thead class="table-light"><tr><th>ID</th><th>Mapel</th><th>Tipe</th><th>Pertanyaan</th><th>Bobot</th></tr></thead>
+                <tbody id="tb-soal"></tbody>
+            </table>
         </div>
     </div>
 
     <div id="panel-koreksi" class="panel">
-        <h4>Koreksi Jawaban Uraian</h4>
-        <div class="alert alert-info mt-3">Fitur ini menampilkan jawaban peserta bertipe "Uraian/Isian" yang belum memiliki nilai. Nilai Pilihan Ganda sudah dihitung otomatis oleh sistem.</div>
-        <div class="card p-3 shadow-sm border-0">
-            <table class="table table-striped"><thead><tr><th>User ID Siswa</th><th>ID Soal</th><th>Jawaban Siswa</th></tr></thead><tbody id="tb-koreksi"></tbody></table>
-            <!-- Input skor disimpan via Google Sheets native untuk keringanan akses -->
+        <h4>Koreksi Jawaban Uraian & Isian</h4>
+        <div class="alert alert-info mt-3">Nilai Pilihan Ganda sudah dihitung otomatis oleh sistem. Berikan nilai 0-100 pada kolom di bawah ini lalu klik Simpan.</div>
+        <div class="card p-3 shadow-sm border-0 table-responsive">
+            <table class="table table-striped align-middle">
+                <thead class="table-dark"><tr><th>User ID Siswa</th><th>ID Soal</th><th>Jawaban Siswa</th><th width="120">Nilai</th><th width="80">Aksi</th></tr></thead>
+                <tbody id="tb-koreksi"></tbody>
+            </table>
         </div>
     </div>
 </div>
 
+<!-- Modal Tambah Soal -->
+<div class="modal fade" id="modalSoal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Tambah Soal Baru</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body row g-3">
+          <div class="col-md-4"><input type="text" id="ts-id" class="form-control" placeholder="ID Soal (cth: S03)" required></div>
+          <div class="col-md-4">
+              <select class="form-select" id="ts-tipe" onchange="toggleTipeSoal()">
+                  <option value="PG">Pilihan Ganda</option>
+                  <option value="Isian">Isian Singkat</option>
+                  <option value="Uraian">Uraian</option>
+              </select>
+          </div>
+          <div class="col-md-4"><input type="number" id="ts-bobot" class="form-control" placeholder="Bobot (cth: 10)"></div>
+          <div class="col-12"><textarea id="ts-tanya" class="form-control" rows="3" placeholder="Tuliskan pertanyaan di sini..."></textarea></div>
+          
+          <div id="area-pg" class="col-12">
+              <div class="row g-2 mt-2">
+                  <div class="col-md-6"><div class="input-group"><span class="input-group-text">A</span><input type="text" id="ts-a" class="form-control"></div></div>
+                  <div class="col-md-6"><div class="input-group"><span class="input-group-text">B</span><input type="text" id="ts-b" class="form-control"></div></div>
+                  <div class="col-md-6"><div class="input-group"><span class="input-group-text">C</span><input type="text" id="ts-c" class="form-control"></div></div>
+                  <div class="col-md-6"><div class="input-group"><span class="input-group-text">D</span><input type="text" id="ts-d" class="form-control"></div></div>
+                  <div class="col-md-12 mt-3"><input type="text" id="ts-kunci" class="form-control fw-bold" placeholder="Kunci Jawaban (A/B/C/D)"></div>
+              </div>
+          </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-primary w-100" id="btn-simpan-soal" onclick="simpanSoalBaru()">Simpan ke Bank Soal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec';
+    
     async function fetchAPI(action, payload = {}) {
         payload.action = action; payload.user_id = localStorage.getItem('cbt_user_id');
         return fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) }).then(r=>r.json());
     }
 
+    let modalSoalObj;
+
     window.onload = () => {
         if(localStorage.getItem('cbt_role') !== 'Guru') window.location.href = 'index.html';
         document.getElementById('nama-guru').innerText = localStorage.getItem('cbt_nama');
+        modalSoalObj = new bootstrap.Modal(document.getElementById('modalSoal'));
         loadDataGuru();
     };
 
@@ -76,10 +126,68 @@
             document.getElementById('st-ujian').innerText = res.data.stats.u;
             document.getElementById('st-koreksi').innerText = res.data.stats.n;
             
+            // Render Tabel Soal
             document.getElementById('tb-soal').innerHTML = res.data.soal.map(s => `<tr><td>${s.id}</td><td>${s.mapel}</td><td><span class="badge bg-secondary">${s.tipe}</span></td><td>${s.tanya}</td><td>${s.bobot}</td></tr>`).join('') || '<tr><td colspan="5">Belum ada soal</td></tr>';
-            document.getElementById('tb-koreksi').innerHTML = res.data.nilai.map(n => `<tr><td>${n.u_id}</td><td>${n.s_id}</td><td>${n.jwb}</td></tr>`).join('') || '<tr><td colspan="3">Semua jawaban telah dinilai</td></tr>';
+            
+            // Render Tabel Koreksi (Kini dilengkapi input nilai dan tombol simpan)
+            document.getElementById('tb-koreksi').innerHTML = res.data.nilai.map(n => `
+                <tr id="baris-${n.row}">
+                    <td>${n.u_id}</td><td>${n.s_id}</td><td>${n.jwb}</td>
+                    <td><input type="number" id="nilai-${n.row}" class="form-control form-control-sm text-center fw-bold" placeholder="0-100"></td>
+                    <td><button class="btn btn-sm btn-success" onclick="simpanKoreksi(${n.row})"><i class="fas fa-save"></i></button></td>
+                </tr>
+            `).join('') || '<tr><td colspan="5" class="text-center">Semua jawaban telah dinilai</td></tr>';
         }
     }
+
+    // ================= FITUR TAMBAH SOAL =================
+    function bukaModalSoal() { modalSoalObj.show(); }
+
+    function toggleTipeSoal() {
+        let tipe = document.getElementById('ts-tipe').value;
+        document.getElementById('area-pg').style.display = (tipe === 'PG') ? 'block' : 'none';
+    }
+
+    async function simpanSoalBaru() {
+        let btn = document.getElementById('btn-simpan-soal');
+        btn.innerHTML = "Menyimpan..."; btn.disabled = true;
+
+        let payload = {
+            id_soal: document.getElementById('ts-id').value,
+            mapel: localStorage.getItem('cbt_mapel'), // Ambil mapel dari data login guru
+            tipe: document.getElementById('ts-tipe').value,
+            bobot: document.getElementById('ts-bobot').value,
+            tanya: document.getElementById('ts-tanya').value,
+            a: document.getElementById('ts-a').value,
+            b: document.getElementById('ts-b').value,
+            c: document.getElementById('ts-c').value,
+            d: document.getElementById('ts-d').value,
+            kunci: document.getElementById('ts-kunci').value
+        };
+
+        if(!payload.id_soal || !payload.tanya) return alert("ID Soal dan Pertanyaan wajib diisi!");
+
+        let res = await fetchAPI('tambahSoal', payload);
+        if(res.status === 'success') {
+            alert('Soal berhasil disimpan ke Database!');
+            location.reload(); // Refresh halaman agar tabel terupdate
+        }
+        btn.innerHTML = "Simpan ke Bank Soal"; btn.disabled = false;
+    }
+
+    // ================= FITUR SIMPAN NILAI =================
+    async function simpanKoreksi(rowIndex) {
+        let nilaiInp = document.getElementById(`nilai-${rowIndex}`).value;
+        if(nilaiInp === '') return alert("Masukkan angka nilai terlebih dahulu!");
+        
+        let res = await fetchAPI('simpanNilai', { row_index: rowIndex, nilai: nilaiInp });
+        if(res.status === 'success') {
+            // Sembunyikan baris tersebut agar seolah-olah sudah selesai dikoreksi
+            document.getElementById(`baris-${rowIndex}`).innerHTML = `<td colspan="5" class="text-center text-success"><i class="fas fa-check-circle"></i> Jawaban berhasil dinilai.</td>`;
+            setTimeout(() => document.getElementById(`baris-${rowIndex}`).style.display = 'none', 1500);
+        }
+    }
+
     function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 </script>
 </body></html>
