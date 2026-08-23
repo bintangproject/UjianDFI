@@ -1,154 +1,69 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Ujian Siswa - CBT Darul Fawaid</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Ujian Siswa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0f2f5; font-family: sans-serif; }
         .hidden { display: none !important; }
-        
-        /* Navbar Siswa */
-        .student-nav { background: #2c3e50; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .student-nav .navbar-brand { color: white; font-weight: bold; }
-        
-        /* Dashboard Cards */
-        .exam-card { border: none; border-radius: 12px; transition: transform 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .exam-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        
-        /* Engine Ujian (Dari Tahap 3) */
-        .exam-header { background: #1a252f; color: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2);}
-        .timer-box { font-size: 1.4rem; font-weight: bold; background: #e74c3c; padding: 5px 15px; border-radius: 8px; font-family: monospace;}
-        
         .grid-soal { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .btn-nomor { border-radius: 8px; font-weight: bold; width: 100%; height: 42px; transition: 0.2s; }
-        .bg-abu { background: #e0e0e0; color: #333; border: 1px solid #ccc; }
-        .bg-hijau { background: #2ecc71; color: white; border: none; box-shadow: 0 2px 5px rgba(46, 204, 113, 0.4); }
-        .bg-kuning { background: #f1c40f; color: white; border: none; box-shadow: 0 2px 5px rgba(241, 196, 15, 0.4); }
+        .btn-nomor { border-radius: 8px; font-weight: bold; width: 100%; height: 42px; border:1px solid #ccc; background:#e0e0e0; }
+        .bg-hijau { background: #2ecc71; color: white; border: none; }
+        .bg-kuning { background: #f1c40f; color: white; border: none; }
         .active-soal { border: 3px solid #3498db; transform: scale(1.1); }
     </style>
 </head>
 <body>
 
-<!-- NAVBAR (Hanya Muncul di Dashboard) -->
-<nav class="navbar navbar-expand-lg student-nav py-3" id="main-navbar">
-    <div class="container">
-        <a class="navbar-brand" href="#"><i class="fas fa-graduation-cap me-2"></i>CBT Darul Fawaid</a>
-        <div class="d-flex align-items-center">
-            <span class="me-3 text-light fw-bold"><i class="fas fa-user-circle me-1"></i> <span id="nama-peserta">Loading...</span></span>
-            <button class="btn btn-sm btn-outline-light" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
-        </div>
+<nav class="navbar navbar-dark bg-dark py-3" id="main-nav">
+    <div class="container d-flex justify-content-between text-white">
+        <h5>CBT Siswa</h5>
+        <div><span id="nama-siswa" class="me-3"></span> <button class="btn btn-sm btn-danger" onclick="logout()">Keluar</button></div>
     </div>
 </nav>
 
-<!-- AREA 1: DASHBOARD PESERTA -->
-<div class="container mt-4" id="dashboard-arena">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="text-secondary fw-bold">Jadwal Ujian Tersedia</h4>
-            <hr>
-        </div>
-    </div>
-    
-    <div class="row" id="list-ujian">
-        <!-- Render Ujian Secara Dinamis -->
-        <div class="col-md-4 mb-4">
-            <div class="card exam-card p-4 border-top border-primary border-4">
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="badge bg-primary">Fiqih</span>
-                    <span class="badge bg-secondary">90 Menit</span>
-                </div>
-                <h5 class="fw-bold mt-2">Ujian Tengah Semester</h5>
-                <p class="text-muted small mb-3"><i class="fas fa-clock me-1"></i> Aktif hari ini</p>
-                <button class="btn btn-primary w-100 fw-bold" onclick="showTokenInput('UJ-001', 'Fiqih - UTS')"><i class="fas fa-play-circle me-1"></i> Mulai Kerjakan</button>
-            </div>
-        </div>
-        
-        <div class="col-md-4 mb-4">
-            <div class="card exam-card p-4 border-top border-success border-4">
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="badge bg-success">Matematika</span>
-                    <span class="badge bg-secondary">120 Menit</span>
-                </div>
-                <h5 class="fw-bold mt-2">Latihan Soal Harian</h5>
-                <p class="text-muted small mb-3"><i class="fas fa-check-circle me-1 text-success"></i> Sudah Dikerjakan</p>
-                <button class="btn btn-light w-100 fw-bold text-success" disabled>Selesai (Skor: 85)</button>
-            </div>
-        </div>
-    </div>
+<div class="container mt-4" id="dashboard">
+    <h4>Jadwal Ujian Tersedia</h4><hr>
+    <div class="row" id="list-ujian">Mencari ujian aktif...</div>
 </div>
 
-<!-- AREA 2: MODAL TOKEN -->
-<div class="modal fade" id="modalToken" tabindex="-1" data-bs-backdrop="static">
+<div class="modal fade" id="modalToken" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg">
-      <div class="modal-header bg-dark text-white">
-        <h5 class="modal-title"><i class="fas fa-key me-2"></i>Verifikasi Token Ujian</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-center p-4">
-          <p class="mb-4">Masukkan token ujian untuk mata pelajaran:<br><strong id="lbl-mapel-token" class="fs-5 text-primary"></strong></p>
-          <input type="text" id="input-token" class="form-control form-control-lg text-center fw-bold text-uppercase mb-3" placeholder="KETIK TOKEN DI SINI" maxlength="6">
-          <button class="btn btn-success btn-lg w-100 fw-bold" onclick="validasiDanMulai()"><i class="fas fa-unlock me-2"></i>VERIFIKASI & MULAI UJIAN</button>
-      </div>
+    <div class="modal-content text-center p-4">
+      <h5>Masukkan Token Ujian</h5><p id="lbl-ujian"></p>
+      <input type="text" id="input-token" class="form-control text-center fw-bold mb-3">
+      <button class="btn btn-success w-100" onclick="validasi()">Mulai Ujian</button>
     </div>
   </div>
 </div>
 
-<!-- AREA 3: MESIN UJIAN (ENGINE) -->
-<div id="exam-arena" class="hidden">
-    <div class="exam-header d-flex justify-content-between align-items-center">
-        <div>
-            <h5 class="m-0 fw-bold"><i class="fas fa-laptop-code me-2"></i><span id="judul-ujian-aktif">Memuat...</span></h5>
-            <small class="text-info"><i class="fas fa-user me-1"></i> <span id="nama-peserta-ujian"></span></small>
-        </div>
-        <div class="d-flex align-items-center">
-            <div class="text-end me-3 d-none d-md-block">
-                <small class="text-muted d-block" style="font-size: 10px;">SISA WAKTU</small>
-            </div>
-            <span class="timer-box shadow" id="timer-display">--:--:--</span>
-            <button class="btn btn-outline-light ms-3 d-none d-md-block" onclick="toggleFullScreen()" title="Fullscreen"><i class="fas fa-expand"></i></button>
-        </div>
+<div id="exam-engine" class="hidden">
+    <div class="bg-dark text-white p-3 d-flex justify-content-between sticky-top">
+        <h5 id="judul-ujian"></h5>
+        <h4 class="bg-danger px-3 py-1 rounded" id="timer">--:--:--</h4>
     </div>
-
     <div class="container-fluid mt-4">
         <div class="row">
-            <!-- SOAL -->
-            <div class="col-lg-8 col-md-7 mb-4">
-                <div class="card p-4 shadow-sm border-0" style="min-height: 450px; border-radius: 12px;">
-                    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
-                        <h5 class="fw-bold text-primary m-0">Soal Nomor <span id="soal-aktif-no" class="bg-primary text-white rounded px-2 py-1 ms-1">1</span></h5>
-                        <div class="form-check form-switch fs-5">
-                            <input class="form-check-input" type="checkbox" id="ragu-toggle" onchange="tandaiRagu()">
-                            <label class="form-check-label text-warning fw-bold fs-6">Ragu-ragu</label>
-                        </div>
+            <div class="col-md-8">
+                <div class="card p-4">
+                    <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                        <h5>Soal <span id="no-soal">1</span></h5>
+                        <div><input type="checkbox" id="cek-ragu" onchange="tandaiRagu()"> <label class="text-warning fw-bold">Ragu</label></div>
                     </div>
-                    
-                    <div id="pertanyaan-teks" class="fs-5 mb-4 text-dark" style="line-height: 1.6;">Memuat soal...</div>
-                    <div id="opsi-area" class="mb-4"></div>
-
-                    <div class="d-flex justify-content-between mt-auto pt-3 border-top">
-                        <button class="btn btn-outline-secondary fw-bold px-4" onclick="navigasi(-1)"><i class="fas fa-arrow-left me-2"></i>SEBELUMNYA</button>
-                        <button class="btn btn-primary fw-bold px-4" onclick="navigasi(1)">SELANJUTNYA <i class="fas fa-arrow-right ms-2"></i></button>
+                    <div id="tanya" class="fs-5 mb-4">Loading...</div>
+                    <div id="opsi"></div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-secondary" onclick="nav(-1)">Kembali</button>
+                        <button class="btn btn-primary" onclick="nav(1)">Lanjut</button>
                     </div>
                 </div>
             </div>
-
-            <!-- NAVIGASI & SUBMIT -->
-            <div class="col-lg-4 col-md-5">
-                <div class="card p-4 shadow-sm border-0" style="border-radius: 12px;">
-                    <h6 class="text-center mb-3 border-bottom pb-2 fw-bold text-secondary">NAVIGASI SOAL</h6>
-                    <div class="grid-soal mb-4" id="grid-navigasi">
-                        <!-- Grid Generated by JS -->
-                    </div>
-                    <div class="d-flex justify-content-between text-muted small mb-4 bg-light p-2 rounded">
-                        <span><i class="fas fa-square text-success"></i> Dijawab</span>
-                        <span><i class="fas fa-square text-warning"></i> Ragu</span>
-                        <span><i class="fas fa-square text-secondary" style="opacity: 0.3;"></i> Kosong</span>
-                    </div>
-                    <button class="btn btn-danger w-100 py-3 fw-bold fs-5 shadow" onclick="submitAkhir()"><i class="fas fa-paper-plane me-2"></i>KUMPULKAN JAWABAN</button>
+            <div class="col-md-4">
+                <div class="card p-4 text-center">
+                    <h6>Navigasi Soal</h6>
+                    <div class="grid-soal mb-4" id="grid"></div>
+                    <button class="btn btn-danger w-100 fw-bold py-2" onclick="submitAkhir()">KUMPULKAN</button>
                 </div>
             </div>
         </div>
@@ -157,252 +72,114 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ==========================================
-    // STANDAR FETCH API (Siap sambung ke Sheet)
-    // ==========================================
-    const API_URL = 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec'; 
-
+    const API_URL = 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec';
+    
     async function fetchAPI(action, payload = {}) {
-        payload.action = action;
-        payload.session_token = localStorage.getItem('cbt_token'); 
-        payload.user_id = localStorage.getItem('cbt_user_id');
-
-        if(API_URL === 'https://script.google.com/macros/s/AKfycbybpeIedWVkMeqxwytE3acxqs8iGQURFALWL8ANCdLymf9m0CYZSK1ndCSWUJug1DFw0w/exec') {
-            // SIMULASI BERHASIL UNTUK TESTING UI
-            if(action === 'validasiToken') {
-                if(payload.token.toUpperCase() === 'ABC12') return {status: 'success'};
-                else return {status: 'error', message: 'Token Salah!'};
-            }
-            if(action === 'getSoal') {
-                return {
-                    status: 'success', 
-                    data: [
-                        {id: 'S01', tipe: 'PG', tanya: 'Apa rukun Islam yang pertama?', a: 'Shalat', b: 'Syahadat', c: 'Zakat', d: 'Puasa'},
-                        {id: 'S02', tipe: 'PG', tanya: 'Surat apakah yang wajib dibaca saat shalat?', a: 'Al-Ikhlas', b: 'An-Nas', c: 'Al-Fatihah', d: 'Al-Baqarah'},
-                        {id: 'S03', tipe: 'Uraian', tanya: 'Jelaskan pengertian iman secara bahasa dan istilah!'}
-                    ]
-                };
-            }
-            return {status: 'success'};
-        }
-
-        try {
-            let res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-            return await res.json();
-        } catch (e) { return {status: 'error', message: e.message}; }
+        payload.action = action; payload.user_id = localStorage.getItem('cbt_user_id'); payload.kelas = localStorage.getItem('cbt_kelas');
+        return fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload) }).then(r=>r.json());
     }
 
-    // ==========================================
-    // LOGIKA DASHBOARD & TOKEN
-    // ==========================================
-    let aktifExamId = '';
-    let modalTokenInstance;
+    let aId = '', sData = [], jData = {}, cIdx = 0, tInt, mToken;
 
     window.onload = () => {
-        let role = localStorage.getItem('cbt_role');
-        let nama = localStorage.getItem('cbt_nama');
-        if(role !== 'Peserta') { alert('Akses Ditolak!'); window.location.href = 'index.html'; }
+        if(localStorage.getItem('cbt_role') !== 'Peserta') window.location.href = 'index.html';
+        document.getElementById('nama-siswa').innerText = localStorage.getItem('cbt_nama');
+        mToken = new bootstrap.Modal(document.getElementById('modalToken'));
         
-        document.getElementById('nama-peserta').innerText = nama;
-        document.getElementById('nama-peserta-ujian').innerText = nama;
-        modalTokenInstance = new bootstrap.Modal(document.getElementById('modalToken'));
-
-        // Cek apakah ada ujian yang belum di-submit (Anti-Refresh Check)
-        let savedExam = localStorage.getItem('aktif_exam_id');
-        if(savedExam) {
-            aktifExamId = savedExam;
-            let judul = localStorage.getItem('aktif_exam_judul');
-            mulaiMesinUjian(judul, true); // True = Resume ujian
-        }
+        if(localStorage.getItem('run_exam')) resumeUjian(localStorage.getItem('run_exam'));
+        else loadUjian();
     };
 
-    function showTokenInput(examId, judul) {
-        aktifExamId = examId;
-        document.getElementById('lbl-mapel-token').innerText = judul;
-        document.getElementById('input-token').value = '';
-        modalTokenInstance.show();
-    }
-
-    async function validasiDanMulai() {
-        let tkn = document.getElementById('input-token').value;
-        if(!tkn) return alert('Masukkan Token!');
-        
-        let res = await fetchAPI('validasiToken', {ujian_id: aktifExamId, token: tkn});
+    async function loadUjian() {
+        let res = await fetchAPI('getPesertaData');
         if(res.status === 'success') {
-            modalTokenInstance.hide();
-            let judul = document.getElementById('lbl-mapel-token').innerText;
-            
-            // Set penanda ujian sedang berlangsung di Local Storage
-            localStorage.setItem('aktif_exam_id', aktifExamId);
-            localStorage.setItem('aktif_exam_judul', judul);
-            
-            mulaiMesinUjian(judul, false);
-        } else { alert(res.message); }
-    }
-
-    // ==========================================
-    // LOGIKA MESIN UJIAN (ENGINE)
-    // ==========================================
-    let soalData = [];
-    let jawabanPeserta = {}; 
-    let currentIndex = 0;
-    let timerInterval;
-
-    async function mulaiMesinUjian(judul, isResume) {
-        // Transisi UI
-        document.getElementById('main-navbar').classList.add('hidden');
-        document.getElementById('dashboard-arena').classList.add('hidden');
-        document.getElementById('exam-arena').classList.remove('hidden');
-        document.getElementById('judul-ujian-aktif').innerText = judul;
-        
-        toggleFullScreen();
-
-        // Ambil Data Soal
-        let res = await fetchAPI('getSoal', {ujian_id: aktifExamId});
-        soalData = res.data;
-
-        // Inisialisasi atau Resume Jawaban Lokal
-        if(isResume && localStorage.getItem(`jwb_${aktifExamId}`)) {
-            jawabanPeserta = JSON.parse(localStorage.getItem(`jwb_${aktifExamId}`));
-        } else {
-            soalData.forEach(s => jawabanPeserta[s.id] = {jwb: '', ragu: false});
+            document.getElementById('list-ujian').innerHTML = res.data.map(u => 
+                `<div class="col-md-4 mb-3"><div class="card p-3 shadow-sm"><h5>${u.mapel}</h5><p>${u.nama}<br>${u.durasi} Menit</p>
+                <button class="btn btn-primary" onclick="bukaToken('${u.id}', '${u.nama}', ${u.durasi})">Mulai</button></div></div>`
+            ).join('') || '<div class="alert alert-warning w-100">Belum ada ujian.</div>';
         }
-        
-        setupNavigasi();
-        loadSoal(0);
-        mulaiTimer(90); // 90 Menit (Nanti didapat dari database)
     }
 
-    function setupNavigasi() {
-        let grid = document.getElementById('grid-navigasi');
-        grid.innerHTML = '';
-        soalData.forEach((s, idx) => {
-            let btn = document.createElement('button');
-            btn.id = 'btn-nav-' + idx;
-            btn.innerText = idx + 1;
-            btn.onclick = () => loadSoal(idx);
-            grid.appendChild(btn);
-            updateWarnaTombolLokal(idx);
+    function bukaToken(id, nama, durasi) { aId = id; localStorage.setItem('tmp_dur', durasi); document.getElementById('lbl-ujian').innerText = nama; mToken.show(); }
+
+    async function validasi() {
+        let t = document.getElementById('input-token').value;
+        let res = await fetchAPI('validasiToken', {ujian_id: aId, token: t});
+        if(res.status === 'success') {
+            mToken.hide(); 
+            localStorage.setItem('run_exam', aId);
+            resumeUjian(aId, false);
+        } else alert(res.msg);
+    }
+
+    async function resumeUjian(id, isRes = true) {
+        aId = id; document.getElementById('main-nav').classList.add('hidden'); document.getElementById('dashboard').classList.add('hidden'); document.getElementById('exam-engine').classList.remove('hidden');
+        if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>{});
+        
+        let res = await fetchAPI('getSoal', {ujian_id: id});
+        sData = res.data;
+        jData = isRes && localStorage.getItem('ans_'+id) ? JSON.parse(localStorage.getItem('ans_'+id)) : {};
+        if(!isRes) sData.forEach(s => jData[s.id] = {jwb: '', ragu: false});
+        
+        buildGrid(); loadSoal(0);
+        let d = localStorage.getItem('tmp_dur') || 90;
+        mulaiTimer(d);
+    }
+
+    function buildGrid() {
+        let g = document.getElementById('grid'); g.innerHTML = '';
+        sData.forEach((s, i) => {
+            let b = document.createElement('button'); b.id = 'b-'+i; b.innerText = i+1; b.className = 'btn-nomor';
+            b.onclick = () => loadSoal(i); g.appendChild(b); updateWarna(i);
         });
     }
 
-    function loadSoal(index) {
-        if(index < 0 || index >= soalData.length) return;
+    function loadSoal(i) {
+        if(i<0 || i>=sData.length) return;
+        document.querySelectorAll('.btn-nomor').forEach(b => b.classList.remove('active-soal')); document.getElementById('b-'+i).classList.add('active-soal');
+        cIdx = i; let s = sData[i];
+        document.getElementById('no-soal').innerText = i+1; document.getElementById('tanya').innerText = s.tanya; document.getElementById('cek-ragu').checked = jData[s.id].ragu;
         
-        document.querySelectorAll('.btn-nomor').forEach(b => b.classList.remove('active-soal'));
-        document.getElementById('btn-nav-' + index).classList.add('active-soal');
-        
-        currentIndex = index;
-        let soal = soalData[index];
-        document.getElementById('soal-aktif-no').innerText = index + 1;
-        document.getElementById('pertanyaan-teks').innerText = soal.tanya;
-        document.getElementById('ragu-toggle').checked = jawabanPeserta[soal.id].ragu;
-
-        let area = document.getElementById('opsi-area');
-        area.innerHTML = '';
-        if(soal.tipe === 'PG') {
+        let area = document.getElementById('opsi'); area.innerHTML = '';
+        if(s.tipe === 'PG') {
             ['a','b','c','d'].forEach(opt => {
-                let isChecked = jawabanPeserta[soal.id].jwb === opt ? 'checked' : '';
-                area.innerHTML += `
-                    <div class="form-check mb-3 p-3 border rounded shadow-sm bg-white" style="cursor:pointer;" onclick="document.getElementById('opt-${opt}').click()">
-                        <input class="form-check-input ms-1 fs-5" type="radio" name="opsi" value="${opt}" id="opt-${opt}" onchange="simpanJawabanLokal('${opt}')" ${isChecked}>
-                        <label class="form-check-label w-100 ms-3 fs-5" style="cursor:pointer;">${soal[opt]}</label>
-                    </div>`;
+                let chk = jData[s.id].jwb === opt ? 'checked' : '';
+                area.innerHTML += `<div class="form-check mb-2 p-2 border rounded"><input class="form-check-input" type="radio" name="opt" value="${opt}" onchange="simpanJwb('${opt}')" ${chk}> <label class="ms-2">${s[opt]}</label></div>`;
             });
         } else {
-            let val = jawabanPeserta[soal.id].jwb;
-            area.innerHTML = `<textarea class="form-control fs-5 p-3" rows="6" placeholder="Ketik jawaban Anda secara lengkap di sini..." onkeyup="simpanJawabanLokal(this.value)">${val}</textarea>`;
+            area.innerHTML = `<textarea class="form-control" rows="5" onkeyup="simpanJwb(this.value)">${jData[s.id].jwb}</textarea>`;
         }
     }
 
-    function simpanJawabanLokal(val) {
-        let id = soalData[currentIndex].id;
-        jawabanPeserta[id].jwb = val;
-        updateWarnaTombolLokal(currentIndex);
-        
-        // Auto Save ke Local Storage
-        localStorage.setItem(`jwb_${aktifExamId}`, JSON.stringify(jawabanPeserta));
+    function simpanJwb(v) { jData[sData[cIdx].id].jwb = v; updateWarna(cIdx); localStorage.setItem('ans_'+aId, JSON.stringify(jData)); }
+    function tandaiRagu() { jData[sData[cIdx].id].ragu = document.getElementById('cek-ragu').checked; updateWarna(cIdx); localStorage.setItem('ans_'+aId, JSON.stringify(jData)); }
+    function updateWarna(i) {
+        let b = document.getElementById('b-'+i), j = jData[sData[i].id];
+        b.className = 'btn-nomor ' + (i === cIdx ? 'active-soal ' : '');
+        if(j.ragu) b.classList.add('bg-kuning'); else if(j.jwb.trim() !== '') b.classList.add('bg-hijau');
     }
+    function nav(a) { loadSoal(cIdx + a); }
 
-    function tandaiRagu() {
-        let id = soalData[currentIndex].id;
-        jawabanPeserta[id].ragu = document.getElementById('ragu-toggle').checked;
-        updateWarnaTombolLokal(currentIndex);
-        localStorage.setItem(`jwb_${aktifExamId}`, JSON.stringify(jawabanPeserta));
-    }
-
-    function updateWarnaTombolLokal(index) {
-        let id = soalData[index].id;
-        let btn = document.getElementById('btn-nav-' + index);
-        let jwb = jawabanPeserta[id];
-        
-        btn.className = 'btn-nomor ' + (index === currentIndex ? 'active-soal ' : '');
-        if(jwb.ragu) btn.classList.add('bg-kuning');
-        else if(jwb.jwb.trim() !== '') btn.classList.add('bg-hijau');
-        else btn.classList.add('bg-abu');
-    }
-
-    function navigasi(arah) { loadSoal(currentIndex + arah); }
-
-    function mulaiTimer(menit) {
-        let keyEndtime = `endtime_${aktifExamId}`;
-        let endTime = localStorage.getItem(keyEndtime);
-        
-        if(!endTime) {
-            endTime = new Date().getTime() + (menit * 60 * 1000);
-            localStorage.setItem(keyEndtime, endTime);
-        }
-
-        timerInterval = setInterval(() => {
-            let distance = endTime - new Date().getTime();
-
-            if (distance < 0) {
-                clearInterval(timerInterval);
-                document.getElementById('timer-display').innerText = "HABIS";
-                alert("WAKTU HABIS! Jawaban Anda akan otomatis dikumpulkan.");
-                eksekusiSubmit();
-            } else {
-                let h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                let m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                let s = Math.floor((distance % (1000 * 60)) / 1000);
-                document.getElementById('timer-display').innerText = 
-                    (h < 10 ? "0"+h : h) + ":" + (m < 10 ? "0"+m : m) + ":" + (s < 10 ? "0"+s : s);
+    function mulaiTimer(m) {
+        let eT = localStorage.getItem('et_'+aId);
+        if(!eT) { eT = new Date().getTime() + (m*60000); localStorage.setItem('et_'+aId, eT); }
+        tInt = setInterval(() => {
+            let dist = eT - new Date().getTime();
+            if(dist < 0) { clearInterval(tInt); kirimData(); alert("Waktu Habis!"); }
+            else {
+                let h=Math.floor((dist%(1000*60*60*24))/(1000*60*60)), mn=Math.floor((dist%(1000*60*60))/(1000*60)), s=Math.floor((dist%(1000*60))/1000);
+                document.getElementById('timer').innerText = `${h<10?'0'+h:h}:${mn<10?'0'+mn:mn}:${s<10?'0'+s:s}`;
             }
         }, 1000);
     }
 
-    function toggleFullScreen() {
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => console.log(e));
-        else if (document.exitFullscreen) document.exitFullscreen();
+    function submitAkhir() { if(confirm('Yakin ingin kumpulkan?')) kirimData(); }
+    async function kirimData() {
+        clearInterval(tInt); document.getElementById('timer').innerText = "SEND...";
+        await fetchAPI('submitJawabanAkhir', {ujian_id: aId, jawaban: jData});
+        localStorage.removeItem('run_exam'); localStorage.removeItem('ans_'+aId); localStorage.removeItem('et_'+aId);
+        if(document.fullscreenElement) document.exitFullscreen(); location.reload();
     }
-
-    function submitAkhir() {
-        let belumTerjawab = Object.values(jawabanPeserta).filter(j => j.jwb.trim() === '').length;
-        let msg = belumTerjawab > 0 ? `Ada ${belumTerjawab} soal yang BELUM DIJAWAB.\n\n` : '';
-        if(confirm(msg + 'Apakah Anda yakin ingin MENGUMPULKAN JAWABAN SEKARANG? Anda tidak bisa mengulangi ujian ini.')) {
-            eksekusiSubmit();
-        }
-    }
-
-    async function eksekusiSubmit() {
-        clearInterval(timerInterval);
-        document.getElementById('timer-display').innerText = "MENYIMPAN...";
-        
-        let payload = { ujian_id: aktifExamId, jawaban: jawabanPeserta };
-        // let res = await fetchAPI('submitJawabanAkhir', payload);
-        
-        // Bersihkan Local Storage terkait ujian ini
-        localStorage.removeItem('aktif_exam_id');
-        localStorage.removeItem('aktif_exam_judul');
-        localStorage.removeItem(`jwb_${aktifExamId}`);
-        localStorage.removeItem(`endtime_${aktifExamId}`);
-        
-        if(document.fullscreenElement) document.exitFullscreen();
-        alert('Sukses! Jawaban berhasil dikirim ke server.');
-        location.reload(); // Kembali ke Dashboard
-    }
-
     function logout() { localStorage.clear(); window.location.href = 'index.html'; }
 </script>
-</body>
-</html>
+</body></html>
